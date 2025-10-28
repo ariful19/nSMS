@@ -1,0 +1,74 @@
+<section class="page">
+  <header class="page__header">
+    <h1 class="page__title">Students</h1>
+    <div class="page__actions">
+      <form method="get" class="form form--inline" aria-label="Search students">
+        <label class="form__field">
+          <span class="form__label">Search</span>
+          <input
+            type="search"
+            name="search"
+            value="<%= search || '' %>"
+            placeholder="Name or student number"
+            class="form__input"
+          />
+        </label>
+        <button type="submit" class="btn">Search</button>
+        <% if (search) { %>
+          <a href="/students" class="btn btn--link">Clear</a>
+        <% } %>
+      </form>
+      <a href="/students/create" class="btn btn--primary">Add student</a>
+    </div>
+  </header>
+
+  <% if (!students || students.length === 0) { %>
+    <p>No students found.</p>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Status</th>
+            <th scope="col">Grade</th>
+            <th scope="col">Student #</th>
+            <th scope="col" class="table__actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% students.forEach((student) => { %>
+            <tr>
+              <td data-title="Name">
+                <a href="/students/<%= student.id %>">
+                  <%= student.person.firstName %> <%= student.person.lastName %>
+                </a>
+              </td>
+              <td data-title="Status">
+                <%= student.enrollmentStatus ? student.enrollmentStatus.name : '—' %>
+              </td>
+              <td data-title="Grade">
+                <%= student.gradeLevel ? student.gradeLevel.name : '—' %>
+              </td>
+              <td data-title="Student #">
+                <%= student.studentNumber || '—' %>
+              </td>
+              <td class="table__actions">
+                <a href="/students/<%= student.id %>/edit" class="btn btn--small">Edit</a>
+                <form
+                  method="post"
+                  action="/students/<%= student.id %>/delete"
+                  class="form form--inline"
+                  onsubmit="return confirm('Delete this student?');"
+                >
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn--small btn--danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
