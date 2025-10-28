@@ -1,0 +1,40 @@
+<section class="auth">
+  <div class="card auth__card">
+    <h1 class="card__title">Sign in</h1>
+    <p class="card__subtitle">
+      Use the credentials provided in the onboarding guide to access the portal.
+    </p>
+    <form method="post" action="/auth/login" class="form" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form__group">
+        <label class="form__label" for="email">Email address</label>
+        <input
+          class="form__control"
+          id="email"
+          name="email"
+          type="email"
+          value="<%= formData.email || '' %>"
+          autocomplete="email"
+          required
+        />
+      </div>
+      <div class="form__group">
+        <label class="form__label" for="password">Password</label>
+        <input
+          class="form__control"
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+      <div class="form__actions">
+        <button type="submit" class="btn btn--primary btn--block">Sign in</button>
+      </div>
+    </form>
+    <p class="card__hint">
+      Default admin: <code>admin@example.com</code> / <code>ChangeMe123!</code>
+    </p>
+  </div>
+</section>

@@ -13,6 +13,8 @@ const config = require("./config");
 const rootRouter = require("./routes");
 const notFound = require("./middleware/notFound");
 const errorHandler = require("./middleware/errorHandler");
+const flash = require("./middleware/flash");
+const attachUser = require("./middleware/attachUser");
 
 const SQLiteStore = SQLiteStoreFactory(session);
 
@@ -60,19 +62,12 @@ app.use(
   })
 );
 
+app.use(flash);
+
 const csrfProtection = csrf({ cookie: false });
 app.use(csrfProtection);
+app.use(attachUser);
 app.use((req, res, next) => {
-  if (typeof req.csrfToken === "function") {
-    try {
-      res.locals.csrfToken = req.csrfToken();
-    } catch (error) {
-      return next(error);
-    }
-  }
-
-  res.locals.currentUser = req.session?.user || null;
-  res.locals.isAuthenticated = Boolean(req.session?.userId);
   res.locals.env = config.env;
   next();
 });
