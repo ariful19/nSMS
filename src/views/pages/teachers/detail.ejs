@@ -1,86 +1,15 @@
-<section class="page">
-  <header class="page__header">
-    <h1 class="page__title">
-      <%= teacher.person.firstName %> <%= teacher.person.lastName %>
-    </h1>
-    <div class="page__actions">
-      <a href="/teachers/<%= teacher.id %>/edit" class="btn">Edit</a>
-      <form
-        method="post"
-        action="/teachers/<%= teacher.id %>/delete"
-        class="form form--inline"
-        onsubmit="return confirm('Delete this teacher?');"
-      >
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <button type="submit" class="btn btn--danger">Delete</button>
-      </form>
-      <a href="/teachers" class="btn btn--link">Back to list</a>
-    </div>
-  </header>
+<section class="page page--teachers">
+  <div
+    class="page__section"
+    data-vue-app="TeacherDetailApp"
+    data-state-id="teacher-detail-state"
+  ></div>
 
-  <section class="card">
-    <h2 class="card__title">Employment</h2>
-    <dl class="definition-list">
-      <div class="definition-list__row">
-        <dt>Staff type</dt>
-        <dd><%= teacher.staffType ? teacher.staffType.name : '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Employment status</dt>
-        <dd><%= teacher.employmentStatus ? teacher.employmentStatus.name : '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Employee number</dt>
-        <dd><%= teacher.employeeNumber || '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Primary subject</dt>
-        <dd><%= teacher.primarySubject || '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Hire date</dt>
-        <dd>
-          <%= teacher.hireDate ? teacher.hireDate.toLocaleDateString() : '—' %>
-        </dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Contract end date</dt>
-        <dd>
-          <%= teacher.contractEndDate ? teacher.contractEndDate.toLocaleDateString() : '—' %>
-        </dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Notes</dt>
-        <dd><%= teacher.notes || '—' %></dd>
-      </div>
-    </dl>
-  </section>
-
-  <section class="card">
-    <h2 class="card__title">Personal details</h2>
-    <dl class="definition-list">
-      <div class="definition-list__row">
-        <dt>Preferred name</dt>
-        <dd><%= teacher.person.preferredName || '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Date of birth</dt>
-        <dd>
-          <%= teacher.person.dateOfBirth ? teacher.person.dateOfBirth.toLocaleDateString() : '—' %>
-        </dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Gender</dt>
-        <dd><%= teacher.person.gender ? teacher.person.gender.name : '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Primary email</dt>
-        <dd><%= teacher.person.primaryEmail || '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Mobile phone</dt>
-        <dd><%= teacher.person.mobilePhone || '—' %></dd>
-      </div>
-    </dl>
-  </section>
+  <noscript>
+    <%- include("./_detail-fallback", { teacher, csrfToken }) %>
+  </noscript>
 </section>
+
+<script type="application/json" id="teacher-detail-state">
+  <%- detailState || '{}' %>
+</script>

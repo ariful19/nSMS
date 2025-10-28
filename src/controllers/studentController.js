@@ -1,4 +1,5 @@
 const studentService = require("../services/studentService");
+const { serializeState, createScriptTag } = require("../utils/viewHelpers");
 
 function normalizeString(value) {
   if (typeof value !== "string") {
@@ -101,12 +102,28 @@ exports.index = async (req, res, next) => {
   const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
 
   try {
-    const students = await studentService.listStudents({ search: search || undefined });
+    const [students, lookups] = await Promise.all([
+      studentService.listStudents({ search: search || undefined }),
+      studentService.getStudentLookups(),
+    ]);
+
+    const indexState = serializeState({
+      students,
+      search,
+      lookups: {
+        statuses: lookups.statuses,
+        gradeLevels: lookups.gradeLevels,
+      },
+      csrfToken: res.locals.csrfToken || null,
+    });
 
     res.render("pages/students/index", {
       title: "Students",
       students,
       search,
+      lookups,
+      scripts: createScriptTag("students.js"),
+      indexState,
     });
   } catch (error) {
     next(error);
@@ -133,9 +150,16 @@ exports.show = async (req, res, next) => {
       return res.redirect("/students");
     }
 
+    const detailState = serializeState({
+      student,
+      csrfToken: res.locals.csrfToken || null,
+    });
+
     res.render("pages/students/detail", {
       title: `${student.person.firstName} ${student.person.lastName}`,
       student,
+      scripts: createScriptTag("students.js"),
+      detailState,
     });
   } catch (error) {
     next(error);
@@ -146,12 +170,23 @@ exports.createForm = async (req, res, next) => {
   try {
     const lookups = await studentService.getStudentLookups();
 
+    const formState = serializeState({
+      lookups,
+      values: {},
+      errors: [],
+      isEditMode: false,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: "/students/create",
+    });
+
     res.render("pages/students/form", {
       title: "Add student",
       lookups,
       formValues: {},
       errors: [],
       isEditMode: false,
+      scripts: createScriptTag("students.js"),
+      formState,
     });
   } catch (error) {
     next(error);
@@ -170,12 +205,23 @@ exports.create = async (req, res, next) => {
 
   if (errors.length > 0) {
     pushInlineAlert(res, "danger", "Please correct the errors below.");
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors,
+      isEditMode: false,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: "/students/create",
+    });
+
     return res.status(422).render("pages/students/form", {
       title: "Add student",
       lookups,
       formValues,
       errors,
       isEditMode: false,
+      scripts: createScriptTag("students.js"),
+      formState,
     });
   }
 
@@ -188,15 +234,27 @@ exports.create = async (req, res, next) => {
   } catch (error) {
     pushInlineAlert(res, "danger", "Unable to save the student. Please review the details and try again.");
 
+    const combinedErrors = [
+      ...errors,
+      "A database error occurred while saving the student.",
+    ];
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors: combinedErrors,
+      isEditMode: false,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: "/students/create",
+    });
+
     return res.status(500).render("pages/students/form", {
       title: "Add student",
       lookups,
       formValues,
-      errors: [
-        ...errors,
-        "A database error occurred while saving the student.",
-      ],
+      errors: combinedErrors,
       isEditMode: false,
+      scripts: createScriptTag("students.js"),
+      formState,
     });
   }
 };
@@ -247,6 +305,16 @@ exports.editForm = async (req, res, next) => {
       notes: student.notes || "",
     };
 
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors: [],
+      isEditMode: true,
+      studentId: student.id,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: `/students/${student.id}/edit`,
+    });
+
     res.render("pages/students/form", {
       title: "Edit student",
       lookups,
@@ -254,6 +322,8 @@ exports.editForm = async (req, res, next) => {
       errors: [],
       isEditMode: true,
       studentId: student.id,
+      scripts: createScriptTag("students.js"),
+      formState,
     });
   } catch (error) {
     next(error);
@@ -281,6 +351,16 @@ exports.update = async (req, res, next) => {
 
   if (errors.length > 0) {
     pushInlineAlert(res, "danger", "Please correct the errors below.");
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors,
+      isEditMode: true,
+      studentId: id,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: `/students/${id}/edit`,
+    });
+
     return res.status(422).render("pages/students/form", {
       title: "Edit student",
       lookups,
@@ -288,6 +368,8 @@ exports.update = async (req, res, next) => {
       errors,
       isEditMode: true,
       studentId: id,
+      scripts: createScriptTag("students.js"),
+      formState,
     });
   }
 
@@ -307,16 +389,29 @@ exports.update = async (req, res, next) => {
     return res.redirect(`/students/${student.id}`);
   } catch (error) {
     pushInlineAlert(res, "danger", "Unable to update the student. Please review the details and try again.");
+    const combinedErrors = [
+      ...errors,
+      "A database error occurred while updating the student.",
+    ];
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors: combinedErrors,
+      isEditMode: true,
+      studentId: id,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: `/students/${id}/edit`,
+    });
+
     return res.status(500).render("pages/students/form", {
       title: "Edit student",
       lookups,
       formValues,
-      errors: [
-        ...errors,
-        "A database error occurred while updating the student.",
-      ],
+      errors: combinedErrors,
       isEditMode: true,
       studentId: id,
+      scripts: createScriptTag("students.js"),
+      formState,
     });
   }
 };
