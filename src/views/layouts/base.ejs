@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= title ? `${title} • School Queens` : "School Queens" %></title>
+    <link rel="stylesheet" href="/styles/main.css" />
+    <% if (typeof styles !== "undefined") { %>
+      <%- styles %>
+    <% } %>
+  </head>
+  <body class="layout">
+    <header class="layout__header">
+      <div class="layout__branding">
+        <span class="layout__logo" aria-hidden="true">🏫</span>
+        <span class="layout__title">School Queens</span>
+      </div>
+      <nav class="layout__nav">
+        <a href="/">Home</a>
+      </nav>
+    </header>
+    <main class="layout__content">
+      <%- body %>
+    </main>
+    <footer class="layout__footer">
+      <small>&copy; <%= new Date().getFullYear() %> School Queens. All rights reserved.</small>
+    </footer>
+    <% if (typeof scripts !== "undefined") { %>
+      <%- scripts %>
+    <% } %>
+  </body>
+</html>

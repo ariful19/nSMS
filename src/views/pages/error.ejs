@@ -1,0 +1,8 @@
+<section class="error">
+  <h1>Something went wrong</h1>
+  <p><%= message || "An unexpected error occurred. Please try again later." %></p>
+  <% if (typeof errorId !== "undefined") { %>
+    <p class="error__code">Reference: <%= errorId %></p>
+  <% } %>
+  <a class="btn btn--primary" href="/">Return home</a>
+</section>
