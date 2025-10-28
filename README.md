@@ -20,7 +20,9 @@ layout shell.
    npx prisma migrate dev
    npm run db:seed
    ```
-   The default SQLite database is stored at `./dev.db`. For a clean slate, run `npm run db:reset`.
+   The default SQLite database is stored at `./dev.db`. The seed now loads full lookup tables (grade levels, statuses, genders)
+   along with demo student/teacher records linked to the default accounts. Set the `SEED_*` environment variables before
+   running the command if you want to override default passwords.
 4. **Start the server**
    ```bash
    npm run dev
@@ -46,7 +48,20 @@ can be overridden via the `SEED_ADMIN_PASSWORD`, `SEED_TEACHER_PASSWORD`, `SEED_
 environment variables before seeding.
 
 The seed script also inserts core lookup data (genders, student statuses, grade levels, staff types, and employment statuses) and
-sample person/student/teacher records tied to the new relational models.
+multiple sample person/student/teacher records tied to the new relational models so that list, detail, and edit views have
+representative fixtures.
+
+## Resetting Development Data
+
+The quickest way to return to a clean development database is:
+
+```bash
+npm run db:reset
+```
+
+The command drops the SQLite database, reapplies migrations, and re-runs the Prisma seed script. Use it whenever you change
+lookups or want to reload the demo students/teachers. If you override any `SEED_*` passwords or set a custom
+`DATABASE_URL`, export those values before calling the reset script.
 
 ## Key Scripts
 
@@ -54,6 +69,26 @@ sample person/student/teacher records tied to the new relational models.
 - `npm run db:seed` — Seed roles and default users via Prisma.
 - `npm run db:reset` — Reset the database (drops and re-applies migrations, then re-seeds).
 - `npm run prisma:studio` — Inspect data using Prisma Studio.
+
+## Security Middleware
+
+The Express app enables `helmet()` globally to provide sensible HTTP security headers for every route, including the new
+student and teacher modules. CSRF protection is handled via `csurf`, which issues a per-request token that controllers
+expose to the rendered templates. Set `SESSION_SECRET` (and `CSRF_SECRET` if you want deterministic tokens) for each
+environment so sessions and form submissions remain protected. Because the guards run before the routers, unauthenticated
+or unprivileged users are redirected or served a `403` response prior to any controller logic executing.
+
+## Operations & Monitoring
+
+HTTP access logs are handled by `morgan`. In production mode the app writes to `var/data/logs/access.log` (or the directory
+pointed to by `LOGS_DIR`). Ensure that `APP_DATA_DIR`, `SESSION_STORE_DIR`, and `LOGS_DIR` resolve to persistent storage in
+deployed environments so session and log data survive restarts. From there you can forward the access log to your preferred
+observability stack. The defaults work out-of-the-box for development and are configurable through the environment without
+code changes.
+
+## Manual QA
+
+For end-to-end verification steps covering create, edit, and list flows, see [`doc/manual-qa-checklist.md`](doc/manual-qa-checklist.md).
 
 ## Testing Authentication Flow
 
