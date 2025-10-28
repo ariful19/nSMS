@@ -227,6 +227,29 @@ Given that development will occur in a cloud “CodeX web” environment, and th
 
 By following this plan, we aim to produce a fully functional, modernized School\_Queens application. The new stack will improve the maintainability and extensibility of the system: features can be added or changed with less friction (thanks to clearer separation of concerns and use of popular frameworks), the UI/UX will be significantly improved for users (responsive design, interactive elements where needed), and the system will be easier to deploy and run (no dependency on Windows/IIS or stored procedure scripts). The use of an MPA with JS islands ensures we aren’t overloading the client with unnecessary scripts, aligning with best practices for web development in 2025[\[3\]](https://rust-on-nails.com/blog/mpa-vs-spa/#:~:text=,hydration%20or%20the%20islands%20architecture)[\[6\]](https://rust-on-nails.com/blog/mpa-vs-spa/#:~:text=1.%20Use%20a%20Node,only%20where%20necessary). Moreover, by removing legacy constraints (like the old membership provider and SP-based DAL), we give the development team full control to tailor the system to the school’s evolving needs.
 
+## Appendix — Phase 1 Profile & Lookup Schema
+
+To support portal-specific person records early in the migration, Prisma models now include:
+
+- `Person` — canonical demographic profile linked to optional `Student` or `TeacherStaff` roles.
+- `Student` — enrollment-specific attributes (grade level, status, admission dates) with optional `User` reference for portal
+  access.
+- `TeacherStaff` — unified employee table for teachers and non-instructional staff, including employment status and portal
+  account linkage.
+- Lookup tables (`Gender`, `StudentStatus`, `GradeLevel`, `StaffType`, `EmploymentStatus`) to preserve flexibility for future
+  UI management screens without hard-coded enums.
+
+Seeding assumptions:
+
+- Lookup tables are populated with representative baseline values and may be safely extended in later phases.
+- Sample records (`PER-0001` student, `PER-1001` teacher) exercise both sides of the `Person` relationships and tie back to
+  their Prisma `User` accounts.
+- Additional environment variables (`SEED_TEACHER_PASSWORD`, `SEED_STAFF_PASSWORD`, `SEED_STUDENT_PASSWORD`) mirror the existing
+  admin override so seeded credentials remain configurable across environments.
+
+These changes maintain SQLite/MySQL compatibility (no provider-specific column types) and provide the groundwork for Phase 2
+student/teacher management features without needing disruptive refactors later.
+
 **References:**
 
 - Current system uses stored procedures for data access (see \_cmd.CommandType = CommandType.StoredProcedure in the legacy DatabaseManager)[\[1\]](https://github.com/ariful19/school_queens/blob/ca280a23b4dcb43b734f47924ffbec7dc855e033/App_Code/DatabaseManager.cs#L116-L124). The migration will eliminate these in favor of application-level logic.
