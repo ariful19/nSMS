@@ -1,74 +1,15 @@
-<section class="page">
-  <header class="page__header">
-    <h1 class="page__title">Teachers &amp; Staff</h1>
-    <div class="page__actions">
-      <form method="get" class="form form--inline" aria-label="Search teachers">
-        <label class="form__field">
-          <span class="form__label">Search</span>
-          <input
-            type="search"
-            name="search"
-            value="<%= search || '' %>"
-            placeholder="Name, employee number, or subject"
-            class="form__input"
-          />
-        </label>
-        <button type="submit" class="btn">Search</button>
-        <% if (search) { %>
-          <a href="/teachers" class="btn btn--link">Clear</a>
-        <% } %>
-      </form>
-      <a href="/teachers/create" class="btn btn--primary">Add teacher or staff</a>
-    </div>
-  </header>
+<section class="page page--teachers">
+  <div
+    class="page__section"
+    data-vue-app="TeacherListApp"
+    data-state-id="teacher-index-state"
+  ></div>
 
-  <% if (!teachers || teachers.length === 0) { %>
-    <p>No teachers or staff members found.</p>
-  <% } else { %>
-    <div class="table-responsive">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Role</th>
-            <th scope="col">Status</th>
-            <th scope="col">Employee #</th>
-            <th scope="col" class="table__actions">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% teachers.forEach((teacher) => { %>
-            <tr>
-              <td data-title="Name">
-                <a href="/teachers/<%= teacher.id %>">
-                  <%= teacher.person.firstName %> <%= teacher.person.lastName %>
-                </a>
-              </td>
-              <td data-title="Role">
-                <%= teacher.staffType ? teacher.staffType.name : '—' %>
-              </td>
-              <td data-title="Status">
-                <%= teacher.employmentStatus ? teacher.employmentStatus.name : '—' %>
-              </td>
-              <td data-title="Employee #">
-                <%= teacher.employeeNumber || '—' %>
-              </td>
-              <td class="table__actions">
-                <a href="/teachers/<%= teacher.id %>/edit" class="btn btn--small">Edit</a>
-                <form
-                  method="post"
-                  action="/teachers/<%= teacher.id %>/delete"
-                  class="form form--inline"
-                  onsubmit="return confirm('Delete this teacher?');"
-                >
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn--small btn--danger">Delete</button>
-                </form>
-              </td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    </div>
-  <% } %>
+  <noscript>
+    <%- include("./_index-fallback", { teachers, search, csrfToken }) %>
+  </noscript>
 </section>
+
+<script type="application/json" id="teacher-index-state">
+  <%- indexState || '{}' %>
+</script>

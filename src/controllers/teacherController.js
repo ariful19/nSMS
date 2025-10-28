@@ -1,4 +1,5 @@
 const teacherService = require("../services/teacherService");
+const { serializeState, createScriptTag } = require("../utils/viewHelpers");
 
 function normalizeString(value) {
   if (typeof value !== "string") {
@@ -107,12 +108,28 @@ exports.index = async (req, res, next) => {
   const search = typeof req.query.search === "string" ? req.query.search.trim() : "";
 
   try {
-    const teachers = await teacherService.listTeachers({ search: search || undefined });
+    const [teachers, lookups] = await Promise.all([
+      teacherService.listTeachers({ search: search || undefined }),
+      teacherService.getTeacherLookups(),
+    ]);
+
+    const indexState = serializeState({
+      teachers,
+      search,
+      lookups: {
+        staffTypes: lookups.staffTypes,
+        employmentStatuses: lookups.employmentStatuses,
+      },
+      csrfToken: res.locals.csrfToken || null,
+    });
 
     res.render("pages/teachers/index", {
       title: "Teachers & Staff",
       teachers,
       search,
+      lookups,
+      scripts: createScriptTag("teachers.js"),
+      indexState,
     });
   } catch (error) {
     next(error);
@@ -139,9 +156,16 @@ exports.show = async (req, res, next) => {
       return res.redirect("/teachers");
     }
 
+    const detailState = serializeState({
+      teacher,
+      csrfToken: res.locals.csrfToken || null,
+    });
+
     res.render("pages/teachers/detail", {
       title: `${teacher.person.firstName} ${teacher.person.lastName}`,
       teacher,
+      scripts: createScriptTag("teachers.js"),
+      detailState,
     });
   } catch (error) {
     next(error);
@@ -152,12 +176,23 @@ exports.createForm = async (req, res, next) => {
   try {
     const lookups = await teacherService.getTeacherLookups();
 
+    const formState = serializeState({
+      lookups,
+      values: {},
+      errors: [],
+      isEditMode: false,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: "/teachers/create",
+    });
+
     res.render("pages/teachers/form", {
       title: "Add teacher or staff member",
       lookups,
       formValues: {},
       errors: [],
       isEditMode: false,
+      scripts: createScriptTag("teachers.js"),
+      formState,
     });
   } catch (error) {
     next(error);
@@ -176,12 +211,23 @@ exports.create = async (req, res, next) => {
 
   if (errors.length > 0) {
     pushInlineAlert(res, "danger", "Please correct the errors below.");
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors,
+      isEditMode: false,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: "/teachers/create",
+    });
+
     return res.status(422).render("pages/teachers/form", {
       title: "Add teacher or staff member",
       lookups,
       formValues,
       errors,
       isEditMode: false,
+      scripts: createScriptTag("teachers.js"),
+      formState,
     });
   }
 
@@ -193,15 +239,27 @@ exports.create = async (req, res, next) => {
     return res.redirect(`/teachers/${teacher.id}`);
   } catch (error) {
     pushInlineAlert(res, "danger", "Unable to save the teacher. Please review the details and try again.");
+    const combinedErrors = [
+      ...errors,
+      "A database error occurred while saving the teacher.",
+    ];
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors: combinedErrors,
+      isEditMode: false,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: "/teachers/create",
+    });
+
     return res.status(500).render("pages/teachers/form", {
       title: "Add teacher or staff member",
       lookups,
       formValues,
-      errors: [
-        ...errors,
-        "A database error occurred while saving the teacher.",
-      ],
+      errors: combinedErrors,
       isEditMode: false,
+      scripts: createScriptTag("teachers.js"),
+      formState,
     });
   }
 };
@@ -251,6 +309,16 @@ exports.editForm = async (req, res, next) => {
       notes: teacher.notes || "",
     };
 
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors: [],
+      isEditMode: true,
+      teacherId: teacher.id,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: `/teachers/${teacher.id}/edit`,
+    });
+
     res.render("pages/teachers/form", {
       title: "Edit teacher or staff member",
       lookups,
@@ -258,6 +326,8 @@ exports.editForm = async (req, res, next) => {
       errors: [],
       isEditMode: true,
       teacherId: teacher.id,
+      scripts: createScriptTag("teachers.js"),
+      formState,
     });
   } catch (error) {
     next(error);
@@ -285,6 +355,16 @@ exports.update = async (req, res, next) => {
 
   if (errors.length > 0) {
     pushInlineAlert(res, "danger", "Please correct the errors below.");
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors,
+      isEditMode: true,
+      teacherId: id,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: `/teachers/${id}/edit`,
+    });
+
     return res.status(422).render("pages/teachers/form", {
       title: "Edit teacher or staff member",
       lookups,
@@ -292,6 +372,8 @@ exports.update = async (req, res, next) => {
       errors,
       isEditMode: true,
       teacherId: id,
+      scripts: createScriptTag("teachers.js"),
+      formState,
     });
   }
 
@@ -311,16 +393,29 @@ exports.update = async (req, res, next) => {
     return res.redirect(`/teachers/${teacher.id}`);
   } catch (error) {
     pushInlineAlert(res, "danger", "Unable to update the teacher. Please review the details and try again.");
+    const combinedErrors = [
+      ...errors,
+      "A database error occurred while updating the teacher.",
+    ];
+    const formState = serializeState({
+      lookups,
+      values: formValues,
+      errors: combinedErrors,
+      isEditMode: true,
+      teacherId: id,
+      csrfToken: res.locals.csrfToken || null,
+      formAction: `/teachers/${id}/edit`,
+    });
+
     return res.status(500).render("pages/teachers/form", {
       title: "Edit teacher or staff member",
       lookups,
       formValues,
-      errors: [
-        ...errors,
-        "A database error occurred while updating the teacher.",
-      ],
+      errors: combinedErrors,
       isEditMode: true,
       teacherId: id,
+      scripts: createScriptTag("teachers.js"),
+      formState,
     });
   }
 };

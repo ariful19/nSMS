@@ -1,82 +1,15 @@
-<section class="page">
-  <header class="page__header">
-    <h1 class="page__title">
-      <%= student.person.firstName %> <%= student.person.lastName %>
-    </h1>
-    <div class="page__actions">
-      <a href="/students/<%= student.id %>/edit" class="btn">Edit</a>
-      <form
-        method="post"
-        action="/students/<%= student.id %>/delete"
-        class="form form--inline"
-        onsubmit="return confirm('Delete this student?');"
-      >
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <button type="submit" class="btn btn--danger">Delete</button>
-      </form>
-      <a href="/students" class="btn btn--link">Back to list</a>
-    </div>
-  </header>
+<section class="page page--students">
+  <div
+    class="page__section"
+    data-vue-app="StudentDetailApp"
+    data-state-id="student-detail-state"
+  ></div>
 
-  <section class="card">
-    <h2 class="card__title">Enrollment</h2>
-    <dl class="definition-list">
-      <div class="definition-list__row">
-        <dt>Status</dt>
-        <dd><%= student.enrollmentStatus ? student.enrollmentStatus.name : '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Grade level</dt>
-        <dd><%= student.gradeLevel ? student.gradeLevel.name : '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Student number</dt>
-        <dd><%= student.studentNumber || '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Admission date</dt>
-        <dd>
-          <%= student.admissionDate ? student.admissionDate.toLocaleDateString() : '—' %>
-        </dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Graduation date</dt>
-        <dd>
-          <%= student.graduationDate ? student.graduationDate.toLocaleDateString() : '—' %>
-        </dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Notes</dt>
-        <dd><%= student.notes || '—' %></dd>
-      </div>
-    </dl>
-  </section>
-
-  <section class="card">
-    <h2 class="card__title">Personal details</h2>
-    <dl class="definition-list">
-      <div class="definition-list__row">
-        <dt>Preferred name</dt>
-        <dd><%= student.person.preferredName || '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Date of birth</dt>
-        <dd>
-          <%= student.person.dateOfBirth ? student.person.dateOfBirth.toLocaleDateString() : '—' %>
-        </dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Gender</dt>
-        <dd><%= student.person.gender ? student.person.gender.name : '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Primary email</dt>
-        <dd><%= student.person.primaryEmail || '—' %></dd>
-      </div>
-      <div class="definition-list__row">
-        <dt>Mobile phone</dt>
-        <dd><%= student.person.mobilePhone || '—' %></dd>
-      </div>
-    </dl>
-  </section>
+  <noscript>
+    <%- include("./_detail-fallback", { student, csrfToken }) %>
+  </noscript>
 </section>
+
+<script type="application/json" id="student-detail-state">
+  <%- detailState || '{}' %>
+</script>
