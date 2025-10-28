@@ -1,0 +1,9 @@
+<% if (Array.isArray(flashMessages) && flashMessages.length > 0) { %>
+  <div class="alerts" role="status">
+    <% flashMessages.forEach((alert) => { %>
+      <div class="alert alert--<%= alert.type %>">
+        <span><%= alert.message %></span>
+      </div>
+    <% }); %>
+  </div>
+<% } %>
