@@ -17,7 +17,7 @@ layout shell.
    ```
 3. **Apply database migrations & seed data**
    ```bash
-   npx prisma migrate dev --name init-auth
+   npx prisma migrate dev
    npm run db:seed
    ```
    The default SQLite database is stored at `./dev.db`. For a clean slate, run `npm run db:reset`.
@@ -31,13 +31,22 @@ Visit [http://localhost:3000](http://localhost:3000) to load the app.
 
 ## Default Credentials
 
-| Role  | Email               | Password       |
-|-------|---------------------|----------------|
-| Admin | `admin@example.com` | `ChangeMe123!` |
-| Staff | `staff@example.com` | `StaffPass123!`|
+All users are created via the Prisma seed script. The teacher and student accounts are linked to the new profile records so you
+can exercise the related tables immediately.
+
+| Role    | Email                 | Password         |
+|---------|-----------------------|------------------|
+| Admin   | `admin@example.com`   | `ChangeMe123!`   |
+| Teacher | `teacher@example.com` | `TeacherPass123!`|
+| Staff   | `staff@example.com`   | `StaffPass123!`  |
+| Student | `student@example.com` | `StudentPass123!`|
 
 Use the admin account to explore the authenticated dashboard. Passwords are hashed with bcrypt and
-can be overridden via the `SEED_ADMIN_PASSWORD` environment variable before seeding.
+can be overridden via the `SEED_ADMIN_PASSWORD`, `SEED_TEACHER_PASSWORD`, `SEED_STAFF_PASSWORD`, and `SEED_STUDENT_PASSWORD`
+environment variables before seeding.
+
+The seed script also inserts core lookup data (genders, student statuses, grade levels, staff types, and employment statuses) and
+sample person/student/teacher records tied to the new relational models.
 
 ## Key Scripts
 

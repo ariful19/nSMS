@@ -14,26 +14,28 @@ datasource db {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  email        String     @unique
-  username     String?    @unique
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  username     String?   @unique
   passwordHash String
-  isActive     Boolean    @default(true)
+  isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  roles        UserRole[]
+  roles   UserRole[]
+  student Student?
+  teacher TeacherStaff?
 }
 
 model Role {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
   description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  users       UserRole[]
+  users UserRole[]
 }
 
 model UserRole {
@@ -45,4 +47,137 @@ model UserRole {
   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
+}
+
+model Person {
+  id             Int       @id @default(autoincrement())
+  externalId     String?   @unique
+  firstName      String
+  middleName     String?
+  lastName       String
+  preferredName  String?
+  dateOfBirth    DateTime?
+  genderId       Int?
+  primaryEmail   String?
+  secondaryEmail String?
+  mobilePhone    String?
+  homePhone      String?
+  addressLine1   String?
+  addressLine2   String?
+  city           String?
+  state          String?
+  postalCode     String?
+  country        String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  gender  Gender?       @relation(fields: [genderId], references: [id], onDelete: SetNull)
+  student Student?
+  teacher TeacherStaff?
+
+  @@index([genderId])
+}
+
+model Student {
+  id                 Int       @id @default(autoincrement())
+  personId           Int       @unique
+  userId             Int?      @unique
+  studentNumber      String?   @unique
+  enrollmentStatusId Int
+  gradeLevelId       Int?
+  admissionDate      DateTime?
+  graduationDate     DateTime?
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  person           Person        @relation(fields: [personId], references: [id], onDelete: Cascade)
+  user             User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  enrollmentStatus StudentStatus @relation(fields: [enrollmentStatusId], references: [id])
+  gradeLevel       GradeLevel?   @relation(fields: [gradeLevelId], references: [id])
+
+  @@index([enrollmentStatusId])
+  @@index([gradeLevelId])
+}
+
+model TeacherStaff {
+  id                 Int       @id @default(autoincrement())
+  personId           Int       @unique
+  userId             Int?      @unique
+  employeeNumber     String?   @unique
+  staffTypeId        Int
+  employmentStatusId Int
+  hireDate           DateTime?
+  contractEndDate    DateTime?
+  primarySubject     String?
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  person           Person           @relation(fields: [personId], references: [id], onDelete: Cascade)
+  user             User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  staffType        StaffType        @relation(fields: [staffTypeId], references: [id])
+  employmentStatus EmploymentStatus @relation(fields: [employmentStatusId], references: [id])
+
+  @@index([staffTypeId])
+  @@index([employmentStatusId])
+}
+
+model Gender {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  persons Person[]
+}
+
+model StudentStatus {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  students Student[]
+}
+
+model GradeLevel {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  students Student[]
+}
+
+model StaffType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members TeacherStaff[]
+}
+
+model EmploymentStatus {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members TeacherStaff[]
 }
