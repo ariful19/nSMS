@@ -1,0 +1,183 @@
+<% const formAction = isEditMode ? `/students/${studentId}/edit` : "/students/create"; %>
+<section class="page">
+  <header class="page__header">
+    <h1 class="page__title"><%= isEditMode ? 'Edit student' : 'Add student' %></h1>
+    <a href="/students" class="btn btn--link">Back to list</a>
+  </header>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert alert--danger" role="alert">
+      <p><strong>We ran into a few issues:</strong></p>
+      <ul>
+        <% errors.forEach((error) => { %>
+          <li><%= error %></li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= formAction %>" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+    <fieldset class="form__fieldset">
+      <legend class="form__legend">Personal information</legend>
+      <div class="form__grid">
+        <label class="form__field">
+          <span class="form__label">First name <span aria-hidden="true">*</span></span>
+          <input
+            type="text"
+            name="firstName"
+            value="<%= formValues.firstName || '' %>"
+            required
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Middle name</span>
+          <input
+            type="text"
+            name="middleName"
+            value="<%= formValues.middleName || '' %>"
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Last name <span aria-hidden="true">*</span></span>
+          <input
+            type="text"
+            name="lastName"
+            value="<%= formValues.lastName || '' %>"
+            required
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Preferred name</span>
+          <input
+            type="text"
+            name="preferredName"
+            value="<%= formValues.preferredName || '' %>"
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Date of birth</span>
+          <input
+            type="date"
+            name="dateOfBirth"
+            value="<%= formValues.dateOfBirth || '' %>"
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Gender</span>
+          <select name="genderId" class="form__input">
+            <option value="">Select gender</option>
+            <% (lookups.genders || []).forEach((gender) => { %>
+              <option
+                value="<%= gender.id %>"
+                <%= String(formValues.genderId || '') === String(gender.id) ? 'selected' : '' %>
+              >
+                <%= gender.name %>
+              </option>
+            <% }); %>
+          </select>
+        </label>
+        <label class="form__field">
+          <span class="form__label">Primary email</span>
+          <input
+            type="email"
+            name="primaryEmail"
+            value="<%= formValues.primaryEmail || '' %>"
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Mobile phone</span>
+          <input
+            type="tel"
+            name="mobilePhone"
+            value="<%= formValues.mobilePhone || '' %>"
+            class="form__input"
+          />
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="form__fieldset">
+      <legend class="form__legend">Enrollment details</legend>
+      <div class="form__grid">
+        <label class="form__field">
+          <span class="form__label">Enrollment status <span aria-hidden="true">*</span></span>
+          <select name="enrollmentStatusId" class="form__input" required>
+            <option value="">Select status</option>
+            <% (lookups.statuses || []).forEach((status) => { %>
+              <option
+                value="<%= status.id %>"
+                <%= String(formValues.enrollmentStatusId || '') === String(status.id) ? 'selected' : '' %>
+              >
+                <%= status.name %>
+              </option>
+            <% }); %>
+          </select>
+        </label>
+        <label class="form__field">
+          <span class="form__label">Grade level</span>
+          <select name="gradeLevelId" class="form__input">
+            <option value="">Select grade</option>
+            <% (lookups.gradeLevels || []).forEach((grade) => { %>
+              <option
+                value="<%= grade.id %>"
+                <%= String(formValues.gradeLevelId || '') === String(grade.id) ? 'selected' : '' %>
+              >
+                <%= grade.name %>
+              </option>
+            <% }); %>
+          </select>
+        </label>
+        <label class="form__field">
+          <span class="form__label">Student number</span>
+          <input
+            type="text"
+            name="studentNumber"
+            value="<%= formValues.studentNumber || '' %>"
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Admission date</span>
+          <input
+            type="date"
+            name="admissionDate"
+            value="<%= formValues.admissionDate || '' %>"
+            class="form__input"
+          />
+        </label>
+        <label class="form__field">
+          <span class="form__label">Graduation date</span>
+          <input
+            type="date"
+            name="graduationDate"
+            value="<%= formValues.graduationDate || '' %>"
+            class="form__input"
+          />
+        </label>
+      </div>
+      <label class="form__field form__field--full">
+        <span class="form__label">Notes</span>
+        <textarea
+          name="notes"
+          rows="4"
+          class="form__input"
+        ><%= formValues.notes || '' %></textarea>
+      </label>
+    </fieldset>
+
+    <div class="form__actions">
+      <button type="submit" class="btn btn--primary">
+        <%= isEditMode ? 'Save changes' : 'Create student' %>
+      </button>
+      <a href="/students" class="btn btn--link">Cancel</a>
+    </div>
+  </form>
+</section>

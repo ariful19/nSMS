@@ -2,6 +2,10 @@
   <a href="/" class="layout__nav-link">Home</a>
   <% if (isAuthenticated) { %>
     <a href="/dashboard" class="layout__nav-link">Dashboard</a>
+    <% if (hasRole("Admin") || hasRole("Staff")) { %>
+      <a href="/students" class="layout__nav-link">Students</a>
+      <a href="/teachers" class="layout__nav-link">Teachers</a>
+    <% } %>
     <span class="layout__nav-user">
       <span class="layout__nav-greeting">Hi, <%= currentUser.displayName %></span>
       <form method="post" action="/auth/logout" class="layout__nav-logout">
