@@ -4,7 +4,17 @@
     This is the next-generation management portal currently under construction.
   </p>
   <div class="home__cta">
-    <a class="btn btn--primary" href="/auth/login">Sign in</a>
-    <a class="btn btn--ghost" href="/docs">Migration Plan</a>
+    <% if (isAuthenticated) { %>
+      <a class="btn btn--primary" href="/dashboard">Go to dashboard</a>
+    <% } else { %>
+      <a class="btn btn--primary" href="/auth/login">Sign in</a>
+    <% } %>
+    <a
+      class="btn btn--ghost"
+      href="https://github.com/ariful19/nSMS/blob/main/doc/phase-1-detailed-plan.md"
+      target="_blank"
+      rel="noreferrer"
+      >Phase 1 details</a
+    >
   </div>
 </section>

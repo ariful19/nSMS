@@ -1,0 +1,15 @@
+<nav class="layout__nav" aria-label="Main navigation">
+  <a href="/" class="layout__nav-link">Home</a>
+  <% if (isAuthenticated) { %>
+    <a href="/dashboard" class="layout__nav-link">Dashboard</a>
+    <span class="layout__nav-user">
+      <span class="layout__nav-greeting">Hi, <%= currentUser.displayName %></span>
+      <form method="post" action="/auth/logout" class="layout__nav-logout">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <button type="submit" class="btn btn--link">Sign out</button>
+      </form>
+    </span>
+  <% } else { %>
+    <a href="/auth/login" class="layout__nav-link">Sign in</a>
+  <% } %>
+</nav>

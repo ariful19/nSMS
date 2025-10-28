@@ -15,11 +15,10 @@
         <span class="layout__logo" aria-hidden="true">🏫</span>
         <span class="layout__title">School Queens</span>
       </div>
-      <nav class="layout__nav">
-        <a href="/">Home</a>
-      </nav>
+      <%- include("../partials/nav") %>
     </header>
     <main class="layout__content">
+      <%- include("../partials/alerts") %>
       <%- body %>
     </main>
     <footer class="layout__footer">

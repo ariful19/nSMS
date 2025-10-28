@@ -34,6 +34,13 @@ module.exports = {
   isProduction,
   port: Number(process.env.PORT) || 3000,
   databaseUrl: process.env.DATABASE_URL,
+  auth: {
+    bcryptRounds: Number(process.env.BCRYPT_COST) || 10,
+    defaultRedirects: {
+      loginSuccess: process.env.AUTH_LOGIN_SUCCESS_REDIRECT || "/dashboard",
+      logoutRedirect: process.env.AUTH_LOGOUT_REDIRECT || "/auth/login",
+    },
+  },
   session: {
     cookieName: process.env.SESSION_COOKIE_NAME || "nsms.sid",
     secret: process.env.SESSION_SECRET || "insecure_dev_secret",
