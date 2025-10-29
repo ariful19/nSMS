@@ -5,6 +5,7 @@
     <% if (hasRole("Admin") || hasRole("Staff")) { %>
       <a href="/students" class="layout__nav-link">Students</a>
       <a href="/teachers" class="layout__nav-link">Teachers</a>
+      <a href="/fees" class="layout__nav-link">Fees</a>
     <% } %>
     <span class="layout__nav-user">
       <span class="layout__nav-greeting">Hi, <%= currentUser.displayName %></span>

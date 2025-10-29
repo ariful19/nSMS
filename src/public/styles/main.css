@@ -125,6 +125,72 @@ code {
   border-left: 1px solid rgba(226, 232, 240, 0.25);
 }
 
+.page--fees,
+.page--fees-ledger,
+.page--fees-receipt {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+}
+
+.fees-fallback,
+.ledger-fallback,
+.receipt-fallback {
+  display: grid;
+  gap: 1.75rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1.25rem;
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.12);
+  border: 1px solid var(--color-border);
+}
+
+.fees-fallback__section {
+  display: grid;
+  gap: 1rem;
+}
+
+.fees-fallback__heading,
+.ledger-fallback__heading {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.ledger-fallback__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(129, 140, 248, 0.25);
+}
+
+.ledger-fallback__filters {
+  background: rgba(248, 250, 252, 0.95);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.ledger-fallback__filters ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--color-muted);
+}
+
+.receipt-fallback__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.receipt-fallback__student {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--color-muted);
+}
+
 .layout__nav-greeting {
   font-weight: 500;
 }

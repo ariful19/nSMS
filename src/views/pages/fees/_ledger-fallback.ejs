@@ -1,0 +1,62 @@
+<section class="ledger-fallback">
+  <h1 class="page__title">Ledger summary</h1>
+  <% if (ledger && ledger.student && ledger.student.person) { %>
+    <p class="ledger-fallback__student">
+      Student: <strong><%= ledger.student.person.firstName %> <%= ledger.student.person.lastName %></strong>
+      (<%= ledger.student.studentNumber || "No number" %>)
+    </p>
+  <% } %>
+
+  <div class="ledger-fallback__summary">
+    <p>Charges: <strong><%= formatCurrency(ledger.totals.charges || 0) %></strong></p>
+    <p>Payments: <strong><%= formatCurrency(ledger.totals.payments || 0) %></strong></p>
+    <p>Adjustments: <strong><%= formatCurrency(ledger.totals.adjustments || 0) %></strong></p>
+    <p>Balance: <strong><%= formatCurrency(ledger.balance || 0) %></strong></p>
+  </div>
+
+  <div class="ledger-fallback__filters">
+    <h2>Filters</h2>
+    <ul>
+      <li>Start date: <%= filters.startDate || "Any" %></li>
+      <li>End date: <%= filters.endDate || "Any" %></li>
+      <li>
+        Category:
+        <% if (filters.categoryId) { %>
+          <%= (categories.find((cat) => String(cat.id) === String(filters.categoryId)) || {}).name || "Any" %>
+        <% } else { %>
+          Any
+        <% } %>
+      </li>
+    </ul>
+  </div>
+
+  <h2 class="ledger-fallback__heading">Ledger entries</h2>
+  <% if (ledger && ledger.entries && ledger.entries.length) { %>
+    <table class="table table--striped">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Type</th>
+          <th scope="col">Category</th>
+          <th scope="col">Description</th>
+          <th scope="col" class="table__cell--numeric">Amount</th>
+          <th scope="col" class="table__cell--numeric">Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% ledger.entries.forEach((entry) => { %>
+          <tr>
+            <td><%= new Date(entry.entryDate).toLocaleDateString() %></td>
+            <td><%= entry.entryType %></td>
+            <td><%= entry.category ? entry.category.name : "—" %></td>
+            <td><%= entry.description || "—" %></td>
+            <td class="table__cell--numeric"><%= formatCurrency(entry.amount) %></td>
+            <td class="table__cell--numeric"><%= formatCurrency(entry.runningBalance) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p>No ledger entries for the selected filters.</p>
+  <% } %>
+</section>

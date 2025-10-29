@@ -1,0 +1,46 @@
+<section class="receipt-fallback">
+  <header class="receipt-fallback__header">
+    <h1>Receipt <%= receipt.receiptNumber %></h1>
+    <button type="button" class="btn btn--secondary" onclick="window.print()">
+      Print
+    </button>
+  </header>
+
+  <% if (receipt.student && receipt.student.person) { %>
+    <div class="receipt-fallback__student">
+      <p><strong>Student:</strong> <%= receipt.student.name %></p>
+      <p><strong>Student number:</strong> <%= receipt.student.studentNumber || "—" %></p>
+    </div>
+  <% } %>
+
+  <table class="table table--striped">
+    <thead>
+      <tr>
+        <th scope="col">Line</th>
+        <th scope="col">Description</th>
+        <th scope="col">Category</th>
+        <th scope="col">Payment method</th>
+        <th scope="col">Date</th>
+        <th scope="col" class="table__cell--numeric">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% receipt.lineItems.forEach((item, index) => { %>
+        <tr>
+          <td><%= index + 1 %></td>
+          <td><%= item.description || "—" %></td>
+          <td><%= item.category ? item.category.name : "—" %></td>
+          <td><%= item.paymentMethod || "—" %></td>
+          <td><%= new Date(item.entryDate).toLocaleDateString() %></td>
+          <td class="table__cell--numeric"><%= formatCurrency(item.amount) %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <th scope="row" colspan="5" class="table__cell--numeric">Total</th>
+        <td class="table__cell--numeric"><%= formatCurrency(receipt.total) %></td>
+      </tr>
+    </tfoot>
+  </table>
+</section>
