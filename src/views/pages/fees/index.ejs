@@ -3,7 +3,9 @@
     class="page__section"
     data-vue-app="FeeDashboardApp"
     data-state-id="fees-index-state"
-  ></div>
+  >
+    <%- include("./_index-fallback", { categories, recentEntries, formatCurrency }) %>
+  </div>
 
   <noscript>
     <%- include("./_index-fallback", { categories, recentEntries, formatCurrency }) %>
