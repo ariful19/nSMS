@@ -1,32 +1,88 @@
 <template>
-  <div class="stack">
+  <div class="academic-app">
+    <section class="page-hero page-hero--subtle">
+      <div class="page-hero__content">
+        <p class="page-hero__eyebrow">Grade workspace</p>
+        <h1 class="page-hero__title">
+          {{ classSubject.classroom.name }} • {{ classSubject.subject.name }}
+        </h1>
+        <p class="page-hero__subtitle">
+          Capture grades with clarity, track assessment progress, and keep every student supported.
+        </p>
+      </div>
+      <dl class="page-hero__stats">
+        <div class="page-hero__stat">
+          <dt>Enrolled students</dt>
+          <dd>{{ enrollments.length }}</dd>
+        </div>
+        <div class="page-hero__stat">
+          <dt>Assessments</dt>
+          <dd>{{ classSubject.assessments.length }}</dd>
+        </div>
+        <div class="page-hero__stat">
+          <dt>Instructor</dt>
+          <dd>{{ teacherDisplay }}</dd>
+        </div>
+      </dl>
+    </section>
+
     <section class="card card--interactive">
       <header class="card__header">
         <div>
-          <h1 class="card__title">
-            {{ classSubject.classroom.name }} • {{ classSubject.subject.name }}
-          </h1>
-          <p class="card__subtitle">
-            {{ enrollments.length }} student{{ enrollments.length === 1 ? "" : "s" }} enrolled
-          </p>
+          <h2 class="card__title">Assessments</h2>
+          <p class="card__subtitle">Choose an assessment to review or add a new experience below.</p>
         </div>
       </header>
-
       <div class="card__body">
-        <div class="assessment-selector">
-          <label class="form__group">
-            <span>Assessment</span>
-            <select v-model="selectedAssessmentId" @change="applySelectedAssessment">
-              <option v-if="classSubject.assessments.length === 0" value="">Create an assessment to begin</option>
-              <option
-                v-for="assessment in classSubject.assessments"
-                :key="assessment.id"
-                :value="String(assessment.id)"
+        <div class="toolbar">
+          <div class="toolbar__search">
+            <label class="form__group">
+              <span>Assessment</span>
+              <select
+                v-model="selectedAssessmentId"
+                class="form__control"
+                @change="applySelectedAssessment"
               >
-                {{ assessment.title }}
-              </option>
-            </select>
-          </label>
+                <option v-if="classSubject.assessments.length === 0" value="">
+                  Create an assessment to begin
+                </option>
+                <option
+                  v-for="assessment in classSubject.assessments"
+                  :key="assessment.id"
+                  :value="String(assessment.id)"
+                >
+                  {{ assessment.title }}
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="toolbar__actions">
+            <span v-if="classSubject.schedule" class="pill pill--soft">
+              {{ classSubject.schedule }}
+            </span>
+          </div>
+        </div>
+
+        <div v-if="selectedAssessment" class="insight-row">
+          <article class="insight-card">
+            <p class="insight-card__label">Assessment type</p>
+            <p class="insight-card__value">
+              {{ selectedAssessment.assessmentType?.name ?? "Not set" }}
+            </p>
+            <p class="insight-card__hint">Consistent types keep reporting balanced.</p>
+          </article>
+          <article class="insight-card">
+            <p class="insight-card__label">Due date</p>
+            <p class="insight-card__value">{{ formatDueDate(selectedAssessment.dueDate) }}</p>
+            <p class="insight-card__hint">Schedule clearly signals expectations to students.</p>
+          </article>
+          <article class="insight-card">
+            <p class="insight-card__label">Default max score</p>
+            <p class="insight-card__value">
+              {{ selectedAssessment.maxScore != null ? selectedAssessment.maxScore : "Flexible" }}
+            </p>
+            <p class="insight-card__hint">You can customise per student in the grid below.</p>
+          </article>
         </div>
       </div>
 
@@ -42,11 +98,11 @@
           <div class="grid grid--three-column">
             <label class="form__group">
               <span>Title</span>
-              <input v-model.trim="assessmentForm.title" type="text" required />
+              <input v-model.trim="assessmentForm.title" type="text" required class="form__control" placeholder="eg. Module reflection" />
             </label>
             <label class="form__group">
               <span>Type</span>
-              <select v-model="assessmentForm.assessmentTypeId" required>
+              <select v-model="assessmentForm.assessmentTypeId" required class="form__control">
                 <option value="">Select type</option>
                 <option v-for="type in assessmentTypes" :key="type.id" :value="String(type.id)">
                   {{ type.name }}
@@ -55,17 +111,17 @@
             </label>
             <label class="form__group">
               <span>Due date</span>
-              <input v-model="assessmentForm.dueDate" type="date" />
+              <input v-model="assessmentForm.dueDate" type="date" class="form__control" />
             </label>
           </div>
           <div class="grid grid--two-column">
             <label class="form__group">
               <span>Max score</span>
-              <input v-model="assessmentForm.maxScore" type="number" step="0.01" />
+              <input v-model="assessmentForm.maxScore" type="number" step="0.01" class="form__control" />
             </label>
             <label class="form__group">
               <span>Description</span>
-              <input v-model.trim="assessmentForm.description" type="text" />
+              <input v-model.trim="assessmentForm.description" type="text" class="form__control" placeholder="Optional context" />
             </label>
           </div>
           <div class="form__actions">
@@ -77,11 +133,17 @@
 
     <section class="card card--interactive">
       <header class="card__header">
-        <h2 class="card__title">Grade entry</h2>
+        <div>
+          <h2 class="card__title">Grade entry</h2>
+          <p class="card__subtitle">
+            Enter scores, adjust maximums, and leave caring comments for each learner.
+          </p>
+        </div>
       </header>
       <div class="card__body">
-        <div v-if="!selectedAssessment" class="alert alert--info">
-          Create an assessment above to start recording grades.
+        <div v-if="!selectedAssessment" class="empty-state">
+          <p class="empty-state__title">No assessment selected</p>
+          <p>Create an assessment above or choose one to begin recording grades.</p>
         </div>
         <form v-else class="stack" @submit.prevent="saveGrades" novalidate>
           <div v-if="gradeErrors.length" class="alert alert--danger">
@@ -115,6 +177,7 @@
                       v-model.number="gradeEntries[enrollment.studentId].score"
                       type="number"
                       step="0.01"
+                      class="form__control"
                       @input="recalculate(enrollment.studentId)"
                     />
                   </td>
@@ -123,6 +186,7 @@
                       v-model.number="gradeEntries[enrollment.studentId].maxScore"
                       type="number"
                       step="0.01"
+                      class="form__control"
                       @input="recalculate(enrollment.studentId)"
                     />
                   </td>
@@ -136,6 +200,8 @@
                     <input
                       v-model.trim="gradeEntries[enrollment.studentId].comments"
                       type="text"
+                      class="form__control"
+                      placeholder="Encouragement or feedback"
                     />
                   </td>
                 </tr>
@@ -191,10 +257,16 @@ const selectedAssessment = computed(() => {
   if (!selectedAssessmentId.value) {
     return null;
   }
-  return classSubject.assessments?.find(
-    (assessment) => String(assessment.id) === String(selectedAssessmentId.value),
-  ) || null;
+  return (
+    classSubject.assessments?.find(
+      (assessment) => String(assessment.id) === String(selectedAssessmentId.value),
+    ) || null
+  );
 });
+
+const teacherDisplay = computed(
+  () => classSubject.teacher?.name ?? "Unassigned teacher",
+);
 
 function ensureEntry(studentId) {
   if (!gradeEntries[studentId]) {
@@ -224,7 +296,14 @@ function hydrateEntries() {
 }
 
 function calculateMetrics(score, maxScore) {
-  if (score === null || score === undefined || score === "" || maxScore === null || maxScore === undefined || maxScore === "") {
+  if (
+    score === null ||
+    score === undefined ||
+    score === "" ||
+    maxScore === null ||
+    maxScore === undefined ||
+    maxScore === ""
+  ) {
     return { percentage: null, letter: null };
   }
   const parsedScore = Number(score);
@@ -256,10 +335,26 @@ function recalculate(studentId) {
 }
 
 function formatPercentage(value) {
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || Number.isNaN(value)) {
     return "—";
   }
-  return `${value.toFixed(2)}%`;
+  return `${Number(value).toFixed(2)}%`;
+}
+
+function formatDueDate(value) {
+  if (!value) {
+    return "Not scheduled";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "Not scheduled";
+  }
+  return date.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 function applySelectedAssessment() {
