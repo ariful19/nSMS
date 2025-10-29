@@ -1,0 +1,15 @@
+<section class="page page--class-detail">
+  <div
+    class="page__section"
+    data-vue-app="ClassDetailApp"
+    data-state-id="class-detail-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_detail-fallback", { detail, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="class-detail-state">
+  <%- detailState || '{}' %>
+</script>

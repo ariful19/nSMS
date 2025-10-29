@@ -1,0 +1,15 @@
+<section class="page page--grade-entry">
+  <div
+    class="page__section"
+    data-vue-app="GradeEntryApp"
+    data-state-id="grade-entry-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_grade-entry-fallback", { context, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="grade-entry-state">
+  <%- gradeEntryState || '{}' %>
+</script>

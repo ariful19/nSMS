@@ -1,0 +1,160 @@
+<section class="card">
+  <header class="card__header">
+    <h1 class="card__title"><%= detail.classroom.name %></h1>
+    <% if (detail.classroom.isArchived) { %>
+      <span class="badge badge--warning">Archived</span>
+    <% } %>
+  </header>
+  <div class="card__body">
+    <dl class="summary">
+      <div>
+        <dt>Code</dt>
+        <dd><%= detail.classroom.code || '—' %></dd>
+      </div>
+      <div>
+        <dt>Grade level</dt>
+        <dd><%= detail.classroom.gradeLevel?.name || '—' %></dd>
+      </div>
+      <div>
+        <dt>Homeroom teacher</dt>
+        <dd><%= detail.classroom.homeroomTeacher?.name || 'Unassigned' %></dd>
+      </div>
+      <div>
+        <dt>Schedule</dt>
+        <dd>
+          <% if (detail.classroom.startDate) { %>
+            Starts <%= detail.classroom.startDate.toISOString().slice(0, 10) %>
+          <% } else { %>
+            —
+          <% } %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<section class="card">
+  <header class="card__header">
+    <h2 class="card__title">Subjects</h2>
+  </header>
+  <div class="card__body">
+    <form
+      class="form"
+      action="/classes/<%= detail.classroom.id %>/subjects"
+      method="post"
+    >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form__group">
+        <label for="fallback-subject">Subject</label>
+        <select id="fallback-subject" name="subjectId" required>
+          <option value="">Select subject</option>
+          <% detail.subjects.forEach((subject) => { %>
+            <option value="<%= subject.id %>"><%= subject.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form__group">
+        <label for="fallback-teacher">Teacher</label>
+        <select id="fallback-teacher" name="teacherId">
+          <option value="">Unassigned</option>
+          <% detail.teachers.forEach((teacher) => { %>
+            <option value="<%= teacher.id %>"><%= teacher.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form__group">
+        <label for="fallback-schedule">Schedule notes</label>
+        <input id="fallback-schedule" type="text" name="schedule" />
+      </div>
+      <button type="submit" class="btn">Assign subject</button>
+    </form>
+  </div>
+  <div class="card__body">
+    <% if (detail.classroom.subjects.length === 0) { %>
+      <p>No subjects are assigned to this class yet.</p>
+    <% } else { %>
+      <ul class="list">
+        <% detail.classroom.subjects.forEach((assignment) => { %>
+          <li>
+            <strong><%= assignment.subjectName %></strong>
+            <% if (assignment.teacherName) { %>
+              <span class="badge badge--neutral"><%= assignment.teacherName %></span>
+            <% } %>
+            <% if (assignment.schedule) { %>
+              <span class="badge badge--info"><%= assignment.schedule %></span>
+            <% } %>
+            <div class="list__meta">
+              <a
+                class="btn btn--small"
+                href="/classes/<%= detail.classroom.id %>/subjects/<%= assignment.id %>/grades"
+              >Grade entry</a>
+              <form
+                class="form form--inline"
+                action="/classes/<%= detail.classroom.id %>/subjects/<%= assignment.id %>/delete"
+                method="post"
+              >
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn--small btn--danger">Remove</button>
+              </form>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+</section>
+
+<section class="card">
+  <header class="card__header">
+    <h2 class="card__title">Enrollments</h2>
+  </header>
+  <div class="card__body">
+    <form
+      class="form"
+      action="/classes/<%= detail.classroom.id %>/enrollments"
+      method="post"
+    >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form__group">
+        <label for="fallback-student-id">Student ID</label>
+        <input
+          id="fallback-student-id"
+          type="number"
+          name="studentId"
+          min="1"
+          required
+        />
+      </div>
+      <div class="form__group">
+        <label for="fallback-enroll-notes">Notes</label>
+        <input id="fallback-enroll-notes" type="text" name="notes" />
+      </div>
+      <button type="submit" class="btn">Add enrollment</button>
+    </form>
+  </div>
+  <div class="card__body">
+    <% if (detail.classroom.enrollments.length === 0) { %>
+      <p>No students are enrolled in this class yet.</p>
+    <% } else { %>
+      <ul class="list">
+        <% detail.classroom.enrollments.forEach((enrollment) => { %>
+          <li>
+            <strong><%= enrollment.name %></strong>
+            <span class="badge badge--neutral"><%= enrollment.studentNumber || '—' %></span>
+            <% if (enrollment.status) { %>
+              <span class="badge"><%= enrollment.status %></span>
+            <% } %>
+            <form
+              class="form form--inline"
+              action="/classes/<%= detail.classroom.id %>/enrollments/<%= enrollment.id %>/delete"
+              method="post"
+            >
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn--small btn--danger">Remove</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+</section>

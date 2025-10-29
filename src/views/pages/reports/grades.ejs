@@ -1,0 +1,15 @@
+<section class="page page--reports">
+  <div
+    class="page__section"
+    data-vue-app="GradeReportApp"
+    data-state-id="grade-report-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_grades-fallback", { report, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="grade-report-state">
+  <%- reportState || '{}' %>
+</script>

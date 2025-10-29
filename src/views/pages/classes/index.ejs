@@ -1,0 +1,24 @@
+<section class="page page--classes">
+  <div
+    class="page__section"
+    data-vue-app="ClassManagementApp"
+    data-state-id="class-management-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_index-fallback", {
+      classes,
+      subjects,
+      lookups,
+      csrfToken,
+      classFormErrors: typeof classFormErrors !== 'undefined' ? classFormErrors : [],
+      classFormValues: typeof classFormValues !== 'undefined' ? classFormValues : {},
+      subjectFormErrors: typeof subjectFormErrors !== 'undefined' ? subjectFormErrors : [],
+      subjectFormValues: typeof subjectFormValues !== 'undefined' ? subjectFormValues : {},
+    }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="class-management-state">
+  <%- managementState || '{}' %>
+</script>

@@ -1,0 +1,74 @@
+<section class="card">
+  <header class="card__header">
+    <h1 class="card__title">Grade reports</h1>
+    <p class="card__subtitle">
+      Summary of recorded marks for available classes.
+    </p>
+  </header>
+  <div class="card__body">
+    <% if (!report || report.summaries.length === 0) { %>
+      <p>No grade data is available yet.</p>
+    <% } %>
+  </div>
+</section>
+
+<% if (report && report.summaries.length > 0) { %>
+  <% report.summaries.forEach((summary) => { %>
+    <section class="card">
+      <header class="card__header">
+        <h2 class="card__title"><%= summary.className %></h2>
+        <% if (summary.gradeLevel) { %>
+          <p class="card__subtitle">Grade level: <%= summary.gradeLevel %></p>
+        <% } %>
+      </header>
+      <div class="card__body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Student</th>
+              <% summary.subjects.forEach((subject) => { %>
+                <th scope="col"><%= subject.name %></th>
+              <% }) %>
+              <th scope="col">Overall</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% summary.students.forEach((student) => { %>
+              <tr>
+                <td data-title="Student">
+                  <strong><%= student.name %></strong>
+                  <% if (student.studentNumber) { %>
+                    <span class="badge badge--neutral"><%= student.studentNumber %></span>
+                  <% } %>
+                </td>
+                <% summary.subjects.forEach((subject) => { %>
+                  <% const grade = student.subjectGrades[String(subject.classSubjectId)] || {}; %>
+                  <td data-title="<%= subject.name %>">
+                    <% if (grade.percentage !== undefined && grade.percentage !== null) { %>
+                      <%= grade.percentage %>%
+                      <% if (grade.letterGrade) { %>
+                        <span class="badge"><%= grade.letterGrade %></span>
+                      <% } %>
+                    <% } else { %>
+                      —
+                    <% } %>
+                  </td>
+                <% }) %>
+                <td data-title="Overall">
+                  <% if (student.overall.percentage !== null && student.overall.percentage !== undefined) { %>
+                    <%= student.overall.percentage %>%
+                    <% if (student.overall.letterGrade) { %>
+                      <span class="badge"><%= student.overall.letterGrade %></span>
+                    <% } %>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <% }) %>
+<% } %>
