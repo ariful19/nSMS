@@ -175,6 +175,7 @@ exports.createForm = async (req, res, next) => {
       values: {},
       errors: [],
       isEditMode: false,
+      studentId: null,
       csrfToken: res.locals.csrfToken || null,
       formAction: "/students/create",
     });
@@ -185,6 +186,7 @@ exports.createForm = async (req, res, next) => {
       formValues: {},
       errors: [],
       isEditMode: false,
+      studentId: null,
       scripts: createScriptTag("students.js"),
       formState,
     });
@@ -210,6 +212,7 @@ exports.create = async (req, res, next) => {
       values: formValues,
       errors,
       isEditMode: false,
+      studentId: null,
       csrfToken: res.locals.csrfToken || null,
       formAction: "/students/create",
     });
@@ -220,6 +223,7 @@ exports.create = async (req, res, next) => {
       formValues,
       errors,
       isEditMode: false,
+      studentId: null,
       scripts: createScriptTag("students.js"),
       formState,
     });
@@ -243,6 +247,7 @@ exports.create = async (req, res, next) => {
       values: formValues,
       errors: combinedErrors,
       isEditMode: false,
+      studentId: null,
       csrfToken: res.locals.csrfToken || null,
       formAction: "/students/create",
     });
@@ -253,6 +258,7 @@ exports.create = async (req, res, next) => {
       formValues,
       errors: combinedErrors,
       isEditMode: false,
+      studentId: null,
       scripts: createScriptTag("students.js"),
       formState,
     });
