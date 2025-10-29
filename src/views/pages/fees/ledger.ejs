@@ -1,0 +1,15 @@
+<section class="page page--fees-ledger">
+  <div
+    class="page__section"
+    data-vue-app="FeeLedgerApp"
+    data-state-id="fees-ledger-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_ledger-fallback", { ledger, categories, filters, formatCurrency }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="fees-ledger-state">
+  <%- ledgerState || '{}' %>
+</script>

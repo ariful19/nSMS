@@ -1,0 +1,15 @@
+<section class="page page--fees">
+  <div
+    class="page__section"
+    data-vue-app="FeeDashboardApp"
+    data-state-id="fees-index-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_index-fallback", { categories, recentEntries, formatCurrency }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="fees-index-state">
+  <%- indexState || '{}' %>
+</script>

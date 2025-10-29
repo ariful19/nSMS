@@ -1,0 +1,15 @@
+<section class="page page--fees-receipt">
+  <div
+    class="page__section"
+    data-vue-app="FeeReceiptApp"
+    data-state-id="fees-receipt-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_receipt-fallback", { receipt, formatCurrency }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="fees-receipt-state">
+  <%- receiptState || '{}' %>
+</script>

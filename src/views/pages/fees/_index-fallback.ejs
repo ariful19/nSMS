@@ -1,0 +1,63 @@
+<section class="fees-fallback">
+  <h1 class="page__title">Fees overview</h1>
+
+  <div class="fees-fallback__section">
+    <h2 class="fees-fallback__heading">Categories</h2>
+    <% if (categories && categories.length) { %>
+      <table class="table table--striped">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Code</th>
+            <th scope="col" class="table__cell--numeric">Default amount</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% categories.forEach((category) => { %>
+            <tr>
+              <td><%= category.name %></td>
+              <td><%= category.code || "—" %></td>
+              <td class="table__cell--numeric">
+                <%= category.defaultAmount ? formatCurrency(category.defaultAmount) : "—" %>
+              </td>
+              <td><%= category.isActive ? "Active" : "Archived" %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No fee categories configured yet.</p>
+    <% } %>
+  </div>
+
+  <div class="fees-fallback__section">
+    <h2 class="fees-fallback__heading">Recent ledger activity</h2>
+    <% if (recentEntries && recentEntries.length) { %>
+      <table class="table table--striped">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Student</th>
+            <th scope="col">Type</th>
+            <th scope="col">Description</th>
+            <th scope="col" class="table__cell--numeric">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% recentEntries.forEach((entry) => { %>
+            <tr>
+              <td><%= new Date(entry.entryDate).toLocaleDateString() %></td>
+              <td><%= entry.student ? entry.student.name : "—" %></td>
+              <td><%= entry.entryType %></td>
+              <td><%= entry.description || "—" %></td>
+              <td class="table__cell--numeric"><%= formatCurrency(entry.amount) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No recent ledger entries yet.</p>
+    <% } %>
+  </div>
+</section>

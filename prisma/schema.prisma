@@ -26,6 +26,7 @@ model User {
   roles   UserRole[]
   student Student?
   teacher TeacherStaff?
+  recordedFeeEntries FeeLedgerEntry[]
 }
 
 model Role {
@@ -97,6 +98,7 @@ model Student {
   gradeLevel       GradeLevel?   @relation(fields: [gradeLevelId], references: [id])
   enrollments      Enrollment[]
   gradeEntries     GradeEntry[]
+  feeLedger        FeeLedgerEntry[]
 
   @@index([enrollmentStatusId])
   @@index([gradeLevelId])
@@ -286,6 +288,58 @@ model GradeEntry {
   @@unique([assessmentId, studentId])
   @@index([studentId])
   @@index([gradedById])
+}
+
+model FeeCategory {
+  id            Int      @id @default(autoincrement())
+  name          String
+  code          String?  @unique
+  defaultAmount Decimal?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  ledgerEntries FeeLedgerEntry[]
+
+  @@unique([name])
+}
+
+model FeeLedgerEntry {
+  id             Int              @id @default(autoincrement())
+  studentId      Int
+  categoryId     Int?
+  recordedById   Int?
+  entryType      FeeEntryType
+  paymentMethod  FeePaymentMethod?
+  amount         Decimal
+  entryDate      DateTime         @default(now())
+  description    String?
+  receiptNumber  String?          @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  category   FeeCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  recordedBy User?       @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@index([studentId, entryDate])
+  @@index([categoryId])
+  @@index([recordedById])
+}
+
+enum FeeEntryType {
+  CHARGE
+  PAYMENT
+  ADJUSTMENT
+}
+
+enum FeePaymentMethod {
+  CASH
+  CHECK
+  TRANSFER
+  MOBILE
+  OTHER
 }
 
 model StaffType {

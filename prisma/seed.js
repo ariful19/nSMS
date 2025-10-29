@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient, Prisma } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
@@ -83,6 +83,13 @@ const employmentStatusSeeds = [
   { name: "Contractor", sortOrder: 4, description: "Contract-based staff" },
 ];
 
+const feeCategorySeeds = [
+  { name: "Tuition", code: "TUITION", defaultAmount: new Prisma.Decimal("350.00"), sortOrder: 1 },
+  { name: "Laboratory", code: "LAB", defaultAmount: new Prisma.Decimal("45.00"), sortOrder: 2 },
+  { name: "Transportation", code: "TRANSPORT", defaultAmount: new Prisma.Decimal("60.00"), sortOrder: 3 },
+  { name: "Library", code: "LIBRARY", defaultAmount: new Prisma.Decimal("15.00"), sortOrder: 4 },
+];
+
 const subjectSeeds = [
   { name: "Mathematics", code: "MATH-101", description: "Core algebra and geometry." },
   { name: "Earth Science", code: "SCI-201", description: "Introductory geology and meteorology." },
@@ -112,6 +119,7 @@ async function seedLookups() {
   await upsertLookup(prisma.gradeLevel, gradeLevelSeeds);
   await upsertLookup(prisma.staffType, staffTypeSeeds);
   await upsertLookup(prisma.employmentStatus, employmentStatusSeeds);
+  await upsertLookup(prisma.feeCategory, feeCategorySeeds);
 
   const [genders, studentStatuses, gradeLevels, staffTypes, employmentStatuses] =
     await Promise.all([
@@ -398,6 +406,81 @@ const teacherSamples = [
       primarySubject: "Earth Science",
       notes: "On sabbatical during spring term.",
     },
+  },
+];
+
+const feeLedgerSamples = [
+  {
+    studentNumber: "STU-0001",
+    entries: [
+      {
+        entryType: "CHARGE",
+        categoryCode: "TUITION",
+        amount: "350.00",
+        entryDate: "2024-09-01",
+        description: "Tuition - Fall 2024",
+      },
+      {
+        entryType: "CHARGE",
+        categoryCode: "LAB",
+        amount: "45.00",
+        entryDate: "2024-09-01",
+        description: "Science lab materials fee",
+      },
+      {
+        entryType: "PAYMENT",
+        amount: "200.00",
+        entryDate: "2024-09-15",
+        description: "Partial tuition payment",
+        paymentMethod: "CASH",
+        receiptNumber: "RCPT-2024-0001",
+      },
+    ],
+  },
+  {
+    studentNumber: "STU-0002",
+    entries: [
+      {
+        entryType: "CHARGE",
+        categoryCode: "TUITION",
+        amount: "350.00",
+        entryDate: "2024-09-01",
+        description: "Tuition - Fall 2024",
+      },
+      {
+        entryType: "CHARGE",
+        categoryCode: "TRANSPORT",
+        amount: "60.00",
+        entryDate: "2024-09-03",
+        description: "Monthly transport fee",
+      },
+      {
+        entryType: "PAYMENT",
+        amount: "150.00",
+        entryDate: "2024-09-20",
+        description: "Online banking payment",
+        paymentMethod: "TRANSFER",
+        receiptNumber: "RCPT-2024-0002",
+      },
+    ],
+  },
+  {
+    studentNumber: "STU-0003",
+    entries: [
+      {
+        entryType: "CHARGE",
+        categoryCode: "LIBRARY",
+        amount: "15.00",
+        entryDate: "2024-05-01",
+        description: "Library replacement card",
+      },
+      {
+        entryType: "ADJUSTMENT",
+        amount: "-15.00",
+        entryDate: "2024-05-10",
+        description: "Waived library replacement charge",
+      },
+    ],
   },
 ];
 
@@ -925,6 +1008,69 @@ async function seedClassroomsAndGrades(lookupData) {
   }
 }
 
+async function seedFeeData(users) {
+  const [categoryRecords, studentRecords] = await Promise.all([
+    prisma.feeCategory.findMany(),
+    prisma.student.findMany(),
+  ]);
+
+  const categoryByCode = mapByField(categoryRecords, "code");
+  const studentByNumber = mapByField(studentRecords, "studentNumber");
+  const recordedById = users.staff?.id || users.admin.id;
+
+  for (const sample of feeLedgerSamples) {
+    const student = studentByNumber[sample.studentNumber];
+    if (!student) {
+      // eslint-disable-next-line no-console
+      console.warn(`Missing student for fee ledger seed: ${sample.studentNumber}`);
+      continue;
+    }
+
+    for (const entry of sample.entries) {
+      const category = entry.categoryCode ? categoryByCode[entry.categoryCode] : null;
+      const entryDate = parseDate(entry.entryDate) || new Date();
+      const baseData = {
+        studentId: student.id,
+        categoryId: category ? category.id : null,
+        recordedById,
+        entryType: entry.entryType,
+        paymentMethod: entry.paymentMethod || null,
+        amount: new Prisma.Decimal(entry.amount),
+        entryDate,
+        description: entry.description || null,
+        receiptNumber: entry.receiptNumber || null,
+      };
+
+      if (entry.receiptNumber) {
+        await prisma.feeLedgerEntry.upsert({
+          where: { receiptNumber: entry.receiptNumber },
+          update: baseData,
+          create: baseData,
+        });
+        continue;
+      }
+
+      const existing = await prisma.feeLedgerEntry.findFirst({
+        where: {
+          studentId: student.id,
+          entryType: entry.entryType,
+          description: entry.description || null,
+          entryDate,
+        },
+      });
+
+      if (existing) {
+        await prisma.feeLedgerEntry.update({
+          where: { id: existing.id },
+          data: baseData,
+        });
+      } else {
+        await prisma.feeLedgerEntry.create({ data: baseData });
+      }
+    }
+  }
+}
+
 async function main() {
   const saltRounds = Number(process.env.BCRYPT_COST || 10);
 
@@ -932,6 +1078,7 @@ async function main() {
   const users = await seedRolesAndUsers(saltRounds);
   await seedStudents(lookupData, users);
   await seedTeachers(lookupData, users);
+  await seedFeeData(users);
   await seedClassroomsAndGrades(lookupData);
 }
 
