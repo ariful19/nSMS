@@ -95,6 +95,8 @@ model Student {
   user             User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   enrollmentStatus StudentStatus @relation(fields: [enrollmentStatusId], references: [id])
   gradeLevel       GradeLevel?   @relation(fields: [gradeLevelId], references: [id])
+  enrollments      Enrollment[]
+  gradeEntries     GradeEntry[]
 
   @@index([enrollmentStatusId])
   @@index([gradeLevelId])
@@ -118,6 +120,9 @@ model TeacherStaff {
   user             User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
   staffType        StaffType        @relation(fields: [staffTypeId], references: [id])
   employmentStatus EmploymentStatus @relation(fields: [employmentStatusId], references: [id])
+  homeroomClasses  Classroom[]      @relation("HomeroomTeacher")
+  subjectAssignments ClassSubject[] @relation("ClassSubjectTeacher")
+  gradedEntries    GradeEntry[]     @relation("GradeEntryGrader")
 
   @@index([staffTypeId])
   @@index([employmentStatusId])
@@ -156,6 +161,131 @@ model GradeLevel {
   updatedAt   DateTime @updatedAt
 
   students Student[]
+  classes  Classroom[]
+}
+
+model Subject {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  code        String?  @unique
+  description String?
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  classSubjects ClassSubject[]
+}
+
+model Classroom {
+  id                 Int       @id @default(autoincrement())
+  name               String
+  code               String?   @unique
+  description        String?
+  gradeLevelId       Int?
+  homeroomTeacherId  Int?
+  startDate          DateTime?
+  endDate            DateTime?
+  isArchived         Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  gradeLevel      GradeLevel?   @relation(fields: [gradeLevelId], references: [id], onDelete: SetNull)
+  homeroomTeacher TeacherStaff? @relation("HomeroomTeacher", fields: [homeroomTeacherId], references: [id], onDelete: SetNull)
+  subjects        ClassSubject[]
+  enrollments     Enrollment[]
+}
+
+model ClassSubject {
+  id          Int       @id @default(autoincrement())
+  classroomId Int
+  subjectId   Int
+  teacherId   Int?
+  schedule    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  classroom Classroom   @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  subject   Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher   TeacherStaff? @relation("ClassSubjectTeacher", fields: [teacherId], references: [id], onDelete: SetNull)
+  assessments Assessment[]
+
+  @@unique([classroomId, subjectId])
+  @@index([teacherId])
+}
+
+model Enrollment {
+  id            Int       @id @default(autoincrement())
+  classroomId   Int
+  studentId     Int
+  status        String    @default("Active")
+  enrolledAt    DateTime?
+  exitDate      DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  student   Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  grades    GradeEntry[]
+
+  @@unique([classroomId, studentId])
+  @@index([studentId])
+}
+
+model AssessmentType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  weight      Float?
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assessments Assessment[]
+}
+
+model Assessment {
+  id               Int       @id @default(autoincrement())
+  classSubjectId   Int
+  assessmentTypeId Int
+  title            String
+  description      String?
+  dueDate          DateTime?
+  maxScore         Float?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  classSubject   ClassSubject   @relation(fields: [classSubjectId], references: [id], onDelete: Cascade)
+  assessmentType AssessmentType @relation(fields: [assessmentTypeId], references: [id], onDelete: Cascade)
+  grades         GradeEntry[]
+
+  @@index([classSubjectId])
+  @@index([assessmentTypeId])
+}
+
+model GradeEntry {
+  id            Int       @id @default(autoincrement())
+  assessmentId  Int
+  enrollmentId  Int
+  studentId     Int
+  score         Float?
+  maxScore      Float?
+  percentage    Float?
+  letterGrade   String?
+  gradedAt      DateTime?
+  gradedById    Int?
+  comments      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  assessment Assessment   @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  enrollment Enrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  student    Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  gradedBy   TeacherStaff? @relation("GradeEntryGrader", fields: [gradedById], references: [id], onDelete: SetNull)
+
+  @@unique([assessmentId, studentId])
+  @@index([studentId])
+  @@index([gradedById])
 }
 
 model StaffType {

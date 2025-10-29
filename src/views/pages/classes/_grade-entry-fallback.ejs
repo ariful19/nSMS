@@ -1,0 +1,112 @@
+<section class="card">
+  <header class="card__header">
+    <h1 class="card__title">
+      <%= context.classSubject.classroom.name %> • <%= context.classSubject.subject.name %>
+    </h1>
+  </header>
+  <div class="card__body">
+    <% if (context.classSubject.assessments.length === 0) { %>
+      <p>No assessments exist yet. Use the form below to create the first one.</p>
+    <% } %>
+    <form
+      class="form"
+      action="/classes/<%= context.classSubject.classroomId %>/subjects/<%= context.classSubject.id %>/assessments"
+      method="post"
+    >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form__group">
+        <label for="fallback-assessment-title">Assessment title</label>
+        <input id="fallback-assessment-title" name="title" type="text" required />
+      </div>
+      <div class="form__group">
+        <label for="fallback-assessment-type">Type</label>
+        <select id="fallback-assessment-type" name="assessmentTypeId" required>
+          <option value="">Select type</option>
+          <% context.assessmentTypes.forEach((type) => { %>
+            <option value="<%= type.id %>"><%= type.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form__group">
+        <label for="fallback-assessment-due">Due date</label>
+        <input id="fallback-assessment-due" name="dueDate" type="date" />
+      </div>
+      <div class="form__group">
+        <label for="fallback-assessment-max">Max score</label>
+        <input id="fallback-assessment-max" name="maxScore" type="number" step="0.01" />
+      </div>
+      <div class="form__group">
+        <label for="fallback-assessment-description">Description</label>
+        <textarea id="fallback-assessment-description" name="description" rows="2"></textarea>
+      </div>
+      <button type="submit" class="btn">Create assessment</button>
+    </form>
+  </div>
+</section>
+
+<% if (context.classSubject.assessments.length > 0) { %>
+  <section class="card">
+    <header class="card__header">
+      <h2 class="card__title">Enter scores</h2>
+    </header>
+    <div class="card__body">
+      <form
+        class="form"
+        action="/classes/<%= context.classSubject.classroomId %>/subjects/<%= context.classSubject.id %>/grades"
+        method="post"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <div class="form__group">
+          <label for="fallback-assessment-select">Assessment</label>
+          <select id="fallback-assessment-select" name="assessmentId" required>
+            <% context.classSubject.assessments.forEach((assessment) => { %>
+              <option value="<%= assessment.id %>"><%= assessment.title %></option>
+            <% }) %>
+          </select>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Student</th>
+              <th scope="col">Score</th>
+              <th scope="col">Existing grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% context.enrollments.forEach((enrollment, index) => { %>
+              <tr>
+                <td data-title="Student">
+                  <%= enrollment.name %>
+                  <% if (enrollment.studentNumber) { %>
+                    <span class="badge badge--neutral"><%= enrollment.studentNumber %></span>
+                  <% } %>
+                </td>
+                <td data-title="Score">
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="entries[<%= index %>][score]"
+                  />
+                  <input type="hidden" name="entries[<%= index %>][enrollmentId]" value="<%= enrollment.id %>" />
+                  <input type="hidden" name="entries[<%= index %>][studentId]" value="<%= enrollment.studentId %>" />
+                </td>
+                <td data-title="Existing grade">
+                  <% const existing = context.classSubject.assessments[0].grades.find((grade) => grade.studentId === enrollment.studentId); %>
+                  <% if (existing) { %>
+                    <%= existing.score !== null ? existing.score : '—' %>
+                    <% if (existing.letterGrade) { %>
+                      <span class="badge"><%= existing.letterGrade %></span>
+                    <% } %>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <button type="submit" class="btn">Save grades</button>
+      </form>
+    </div>
+  </section>
+<% } %>

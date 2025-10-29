@@ -1,0 +1,188 @@
+<section class="card">
+  <header class="card__header">
+    <h1 class="card__title">Classes</h1>
+    <p class="card__subtitle">Manage classrooms and their metadata.</p>
+  </header>
+  <div class="card__body">
+    <% if ((classFormErrors || []).length > 0) { %>
+      <div class="alert alert--danger">
+        <p>The class could not be saved:</p>
+        <ul>
+          <% classFormErrors.forEach((error) => { %>
+            <li><%= error %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form class="form" action="/classes" method="post">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form__group">
+        <label for="class-name">Name</label>
+        <input
+          id="class-name"
+          name="name"
+          type="text"
+          value="<%= classFormValues?.name || '' %>"
+          required
+        />
+      </div>
+      <div class="form__group">
+        <label for="class-code">Code</label>
+        <input
+          id="class-code"
+          name="code"
+          type="text"
+          value="<%= classFormValues?.code || '' %>"
+        />
+      </div>
+      <div class="form__group">
+        <label for="class-grade">Grade level</label>
+        <select id="class-grade" name="gradeLevelId">
+          <option value="">Select grade</option>
+          <% (lookups?.gradeLevels || []).forEach((grade) => { %>
+            <option
+              value="<%= grade.id %>"
+              <%= String(classFormValues?.gradeLevelId || '') === String(grade.id) ? 'selected' : '' %>
+            ><%= grade.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form__group">
+        <label for="class-teacher">Homeroom teacher</label>
+        <select id="class-teacher" name="homeroomTeacherId">
+          <option value="">Unassigned</option>
+          <% (lookups?.teachers || []).forEach((teacher) => { %>
+            <option
+              value="<%= teacher.id %>"
+              <%= String(classFormValues?.homeroomTeacherId || '') === String(teacher.id) ? 'selected' : '' %>
+            ><%= teacher.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form__group">
+        <label for="class-start">Start date</label>
+        <input
+          id="class-start"
+          name="startDate"
+          type="date"
+          value="<%= classFormValues?.startDate || '' %>"
+        />
+      </div>
+      <div class="form__group">
+        <label for="class-end">End date</label>
+        <input
+          id="class-end"
+          name="endDate"
+          type="date"
+          value="<%= classFormValues?.endDate || '' %>"
+        />
+      </div>
+      <div class="form__group">
+        <label for="class-description">Description</label>
+        <textarea
+          id="class-description"
+          name="description"
+          rows="3"
+        ><%= classFormValues?.description || '' %></textarea>
+      </div>
+      <button type="submit" class="btn">Create class</button>
+    </form>
+  </div>
+  <div class="card__body">
+    <% if ((classes || []).length === 0) { %>
+      <p>No classes have been created yet.</p>
+    <% } else { %>
+      <ul class="list">
+        <% classes.forEach((classroom) => { %>
+          <li>
+            <strong><a href="/classes/<%= classroom.id %>"><%= classroom.name %></a></strong>
+            <% if (classroom.isArchived) { %>
+              <span class="badge badge--warning">Archived</span>
+            <% } %>
+            <div class="list__meta">
+              <% if (classroom.gradeLevel) { %>
+                <span>Grade: <%= classroom.gradeLevel.name %></span>
+              <% } %>
+              <span>Students: <%= classroom.studentCount %></span>
+              <span>Subjects: <%= classroom.subjectCount %></span>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+</section>
+
+<section class="card">
+  <header class="card__header">
+    <h2 class="card__title">Subjects</h2>
+    <p class="card__subtitle">Create the subjects taught across classes.</p>
+  </header>
+  <div class="card__body">
+    <% if ((subjectFormErrors || []).length > 0) { %>
+      <div class="alert alert--danger">
+        <p>The subject could not be saved:</p>
+        <ul>
+          <% subjectFormErrors.forEach((error) => { %>
+            <li><%= error %></li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form class="form" action="/classes/subjects" method="post">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <div class="form__group">
+        <label for="subject-name">Name</label>
+        <input
+          id="subject-name"
+          name="name"
+          type="text"
+          value="<%= subjectFormValues?.name || '' %>"
+          required
+        />
+      </div>
+      <div class="form__group">
+        <label for="subject-code">Code</label>
+        <input
+          id="subject-code"
+          name="code"
+          type="text"
+          value="<%= subjectFormValues?.code || '' %>"
+        />
+      </div>
+      <div class="form__group">
+        <label for="subject-description">Description</label>
+        <textarea
+          id="subject-description"
+          name="description"
+          rows="2"
+        ><%= subjectFormValues?.description || '' %></textarea>
+      </div>
+      <button type="submit" class="btn">Create subject</button>
+    </form>
+  </div>
+  <div class="card__body">
+    <% if ((subjects || []).length === 0) { %>
+      <p>No subjects have been created yet.</p>
+    <% } else { %>
+      <ul class="list">
+        <% subjects.forEach((subject) => { %>
+          <li>
+            <strong><%= subject.name %></strong>
+            <% if (subject.isArchived) { %>
+              <span class="badge badge--warning">Archived</span>
+            <% } %>
+            <% if (subject.code) { %>
+              <span class="badge badge--neutral"><%= subject.code %></span>
+            <% } %>
+            <div class="list__meta">
+              <span>Linked classes: <%= subject.classCount %></span>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+</section>
