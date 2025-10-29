@@ -1,20 +1,77 @@
-<section class="home">
-  <h1 class="home__headline">Welcome to School Queens</h1>
-  <p class="home__intro">
-    This is the next-generation management portal currently under construction.
-  </p>
-  <div class="home__cta">
-    <% if (isAuthenticated) { %>
-      <a class="btn btn--primary" href="/dashboard">Go to dashboard</a>
-    <% } else { %>
-      <a class="btn btn--primary" href="/auth/login">Sign in</a>
-    <% } %>
-    <a
-      class="btn btn--ghost"
-      href="https://github.com/ariful19/nSMS/blob/main/doc/phase-1-detailed-plan.md"
-      target="_blank"
-      rel="noreferrer"
-      >Phase 1 details</a
-    >
+<section class="home" aria-labelledby="home-title">
+  <div class="home__grid">
+    <div class="home__hero">
+      <p class="home__eyebrow">Unified school management, reimagined</p>
+      <h1 id="home-title" class="home__headline">A calmer way to run School Queens</h1>
+      <p class="home__intro">
+        We are building a modern workspace where administrators, teachers, and guardians can
+        collaborate in real time. Every screen is being crafted to surface the right insights without
+        the clutter.
+      </p>
+      <div class="home__cta">
+        <% if (isAuthenticated) { %>
+          <a class="btn btn--primary" href="/dashboard">Go to dashboard</a>
+        <% } else { %>
+          <a class="btn btn--primary" href="/auth/login">Sign in</a>
+        <% } %>
+        <a
+          class="btn btn--ghost"
+          href="https://github.com/ariful19/nSMS/blob/main/doc/phase-1-detailed-plan.md"
+          target="_blank"
+          rel="noreferrer"
+          >View the migration plan</a
+        >
+      </div>
+      <dl class="home__stats" aria-label="Roadmap milestones">
+        <div class="home__stat">
+          <dt class="home__stat-label">Phase 1</dt>
+          <dd class="home__stat-value">Identity, onboarding, dashboards</dd>
+        </div>
+        <div class="home__stat">
+          <dt class="home__stat-label">Phase 2</dt>
+          <dd class="home__stat-value">Attendance, timetables, staff workflows</dd>
+        </div>
+        <div class="home__stat">
+          <dt class="home__stat-label">Built for</dt>
+          <dd class="home__stat-value">Clarity, security, and daily momentum</dd>
+        </div>
+      </dl>
+    </div>
+    <div class="home__visual" aria-hidden="true">
+      <div class="home__visual-ring"></div>
+      <div class="home__visual-card">
+        <span class="home__visual-badge">Live preview</span>
+        <p class="home__visual-title">Role-aware dashboards</p>
+        <p class="home__visual-copy">
+          Fast authentication, consistent permissions, and a launchpad for the modules that follow.
+        </p>
+      </div>
+    </div>
   </div>
+  <section class="home__features" aria-label="Experience highlights">
+    <article class="home__feature-card">
+      <span class="home__feature-icon" aria-hidden="true">🗂️</span>
+      <h2 class="home__feature-title">Organised workspaces</h2>
+      <p class="home__feature-copy">
+        Every module sits on a consistent grid, so your team can focus on decisions instead of
+        navigation.
+      </p>
+    </article>
+    <article class="home__feature-card">
+      <span class="home__feature-icon" aria-hidden="true">📊</span>
+      <h2 class="home__feature-title">Insightful analytics</h2>
+      <p class="home__feature-copy">
+        Dashboards highlight the metrics that matter and prepare the ground for attendance and
+        finance rollouts.
+      </p>
+    </article>
+    <article class="home__feature-card">
+      <span class="home__feature-icon" aria-hidden="true">🤝</span>
+      <h2 class="home__feature-title">Human support</h2>
+      <p class="home__feature-copy">
+        Clear language, accessible components, and role-aware access keep the experience comfortable
+        for every stakeholder.
+      </p>
+    </article>
+  </section>
 </section>
