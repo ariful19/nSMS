@@ -19,9 +19,9 @@ async function listStudents({ search } = {}) {
   const where = search
     ? {
         OR: [
-          { studentNumber: { contains: search, mode: "insensitive" } },
-          { person: { firstName: { contains: search, mode: "insensitive" } } },
-          { person: { lastName: { contains: search, mode: "insensitive" } } },
+          { studentNumber: { contains: search } },
+          { person: { firstName: { contains: search } } },
+          { person: { lastName: { contains: search } } },
         ],
       }
     : undefined;
@@ -120,10 +120,10 @@ async function searchStudents(term, limit = 10) {
       ? {
           OR: [
             {
-              studentNumber: { contains: searchTerm, mode: "insensitive" },
+              studentNumber: { contains: searchTerm },
             },
-            { person: { firstName: { contains: searchTerm, mode: "insensitive" } } },
-            { person: { lastName: { contains: searchTerm, mode: "insensitive" } } },
+            { person: { firstName: { contains: searchTerm } } },
+            { person: { lastName: { contains: searchTerm } } },
           ],
         }
       : undefined,

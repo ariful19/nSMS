@@ -19,10 +19,10 @@ async function listTeachers({ search } = {}) {
   const where = search
     ? {
         OR: [
-          { employeeNumber: { contains: search, mode: "insensitive" } },
-          { person: { firstName: { contains: search, mode: "insensitive" } } },
-          { person: { lastName: { contains: search, mode: "insensitive" } } },
-          { primarySubject: { contains: search, mode: "insensitive" } },
+          { employeeNumber: { contains: search } },
+          { person: { firstName: { contains: search } } },
+          { person: { lastName: { contains: search } } },
+          { primarySubject: { contains: search } },
         ],
       }
     : undefined;
@@ -120,10 +120,10 @@ async function searchTeachers(term, limit = 10) {
     where: searchTerm
       ? {
           OR: [
-            { employeeNumber: { contains: searchTerm, mode: "insensitive" } },
-            { person: { firstName: { contains: searchTerm, mode: "insensitive" } } },
-            { person: { lastName: { contains: searchTerm, mode: "insensitive" } } },
-            { primarySubject: { contains: searchTerm, mode: "insensitive" } },
+            { employeeNumber: { contains: searchTerm } },
+            { person: { firstName: { contains: searchTerm } } },
+            { person: { lastName: { contains: searchTerm } } },
+            { primarySubject: { contains: searchTerm } },
           ],
         }
       : undefined,
