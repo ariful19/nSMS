@@ -1,0 +1,13 @@
+<section class="page page--library-book">
+  <div class="page__section" data-vue-app="LibraryBookApp" data-state-id="library-book-state">
+    <%- include("./_book-fallback", { book, activeLoans, recentLoans, categories }) %>
+  </div>
+
+  <noscript>
+    <%- include("./_book-fallback", { book, activeLoans, recentLoans, categories }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="library-book-state">
+  <%- bookState || '{}' %>
+</script>

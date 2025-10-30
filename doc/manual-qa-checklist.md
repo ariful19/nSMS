@@ -1,6 +1,6 @@
 # Manual QA Checklist
 
-Use this guide when validating student and teacher management flows after applying migrations or updating seeds.
+Use this guide when validating student, teacher, and library management flows after applying migrations or updating seeds.
 
 ## Pre-flight
 
@@ -21,6 +21,15 @@ Use this guide when validating student and teacher management flows after applyi
 - [ ] Test the "Add teacher or staff member" form with empty fields to verify validation errors for first name, last name, staff type, and employment status.
 - [ ] Submit a valid record (unique employee number) and confirm the redirect to the detail page along with a success flash.
 - [ ] Edit the record to update the primary subject or employment status and verify the change persists.
+
+## Library module
+
+- [ ] Sign in as `staff@example.com` and navigate to `/library`; confirm the catalog list shows seeded titles with availability counts.
+- [ ] Use the catalog search to filter by a keyword (e.g., "Gatsby") and verify only matching books remain.
+- [ ] Click "Add book", submit an empty form to confirm validation, then create a new book and ensure it appears in the search results.
+- [ ] From the catalog, open a book detail page, add a new copy, and verify it appears in the inventory table.
+- [ ] Use the "Issue a loan" form to select the new copy, search for a borrower, and record a loan; confirm it appears in the active loans table.
+- [ ] Mark the loan as returned and check that it moves out of the active list while appearing in the recent activity log.
 
 ## Monitoring & logging expectations
 

@@ -1,0 +1,13 @@
+<section class="page page--library">
+  <div class="page__section" data-vue-app="LibraryDashboardApp" data-state-id="library-index-state">
+    <%- include("./_index-fallback", { categories, books, recentLoans }) %>
+  </div>
+
+  <noscript>
+    <%- include("./_index-fallback", { categories, books, recentLoans }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="library-index-state">
+  <%- indexState || '{}' %>
+</script>
