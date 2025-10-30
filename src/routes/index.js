@@ -8,6 +8,7 @@ const teacherRoutes = require("./teacherRoutes");
 const classRoutes = require("./classRoutes");
 const reportRoutes = require("./reportRoutes");
 const feeRoutes = require("./feeRoutes");
+const libraryRoutes = require("./libraryRoutes");
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use("/teachers", teacherRoutes);
 router.use("/classes", classRoutes);
 router.use("/reports", reportRoutes);
 router.use("/fees", feeRoutes);
+router.use("/library", libraryRoutes);
 
 module.exports = router;

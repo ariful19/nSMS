@@ -90,6 +90,12 @@ const feeCategorySeeds = [
   { name: "Library", code: "LIBRARY", defaultAmount: new Prisma.Decimal("15.00"), sortOrder: 4 },
 ];
 
+const libraryCategorySeeds = [
+  { name: "Fiction", code: "FIC", sortOrder: 1, description: "Novels and stories." },
+  { name: "Non-fiction", code: "NF", sortOrder: 2, description: "Biographies and informational titles." },
+  { name: "Reference", code: "REF", sortOrder: 3, description: "Encyclopedias, atlases, and handbooks." },
+];
+
 const subjectSeeds = [
   { name: "Mathematics", code: "MATH-101", description: "Core algebra and geometry." },
   { name: "Earth Science", code: "SCI-201", description: "Introductory geology and meteorology." },
@@ -120,14 +126,16 @@ async function seedLookups() {
   await upsertLookup(prisma.staffType, staffTypeSeeds);
   await upsertLookup(prisma.employmentStatus, employmentStatusSeeds);
   await upsertLookup(prisma.feeCategory, feeCategorySeeds);
+  await upsertLookup(prisma.libraryCategory, libraryCategorySeeds);
 
-  const [genders, studentStatuses, gradeLevels, staffTypes, employmentStatuses] =
+  const [genders, studentStatuses, gradeLevels, staffTypes, employmentStatuses, libraryCategories] =
     await Promise.all([
       prisma.gender.findMany(),
       prisma.studentStatus.findMany(),
       prisma.gradeLevel.findMany(),
       prisma.staffType.findMany(),
       prisma.employmentStatus.findMany(),
+      prisma.libraryCategory.findMany(),
     ]);
 
   return {
@@ -136,6 +144,7 @@ async function seedLookups() {
     gradeLevels: mapByName(gradeLevels),
     staffTypes: mapByName(staffTypes),
     employmentStatuses: mapByName(employmentStatuses),
+    libraryCategories: mapByName(libraryCategories),
   };
 }
 
@@ -481,6 +490,70 @@ const feeLedgerSamples = [
         description: "Waived library replacement charge",
       },
     ],
+  },
+];
+
+const libraryBookSamples = [
+  {
+    title: "The Great Gatsby",
+    isbn: "9780743273565",
+    author: "F. Scott Fitzgerald",
+    publisher: "Scribner",
+    publishedYear: 2004,
+    category: "Fiction",
+    summary: "Classic novel chronicling the Jazz Age and the pursuit of the American Dream.",
+    copies: [
+      { barcode: "GG-001", location: "FIC FIT", status: "AVAILABLE" },
+      { barcode: "GG-002", location: "FIC FIT", status: "LOANED" },
+    ],
+    loans: [
+      {
+        barcode: "GG-002",
+        studentNumber: "STU-0002",
+        issuedAt: "2024-09-10",
+        dueAt: "2024-09-24",
+        issuedBy: "staff",
+        notes: "Class reading assignment.",
+      },
+    ],
+  },
+  {
+    title: "Hidden Figures",
+    isbn: "9780062363602",
+    author: "Margot Lee Shetterly",
+    publisher: "William Morrow",
+    publishedYear: 2016,
+    category: "Non-fiction",
+    summary: "Story of the Black women mathematicians who helped win the space race.",
+    copies: [
+      { barcode: "HF-001", location: "NF SHE", status: "AVAILABLE" },
+    ],
+    loans: [
+      {
+        barcode: "HF-001",
+        studentNumber: "STU-0001",
+        issuedAt: "2024-08-01",
+        dueAt: "2024-08-15",
+        returnedAt: "2024-08-12",
+        issuedBy: "staff",
+        receivedBy: "staff",
+        notes: "Summer reading checkout.",
+      },
+    ],
+  },
+  {
+    title: "Atlas of the World",
+    isbn: "9781465453603",
+    author: "National Geographic",
+    publisher: "National Geographic",
+    publishedYear: 2017,
+    category: "Reference",
+    summary: "Comprehensive atlas for geography projects and research.",
+    copies: [
+      { barcode: "AT-001", location: "REF ATLAS", status: "AVAILABLE" },
+      { barcode: "AT-002", location: "REF ATLAS", status: "AVAILABLE" },
+    ],
+    loans: [],
   },
 ];
 
@@ -1071,6 +1144,153 @@ async function seedFeeData(users) {
   }
 }
 
+async function seedLibraryData(users) {
+  const [categoryRecords, studentRecords] = await Promise.all([
+    prisma.libraryCategory.findMany(),
+    prisma.student.findMany(),
+  ]);
+
+  const categoryByName = mapByName(categoryRecords);
+  const categoryByCode = mapByField(categoryRecords, "code");
+  const studentByNumber = mapByField(studentRecords, "studentNumber");
+
+  const copyByBarcode = new Map();
+
+  for (const sample of libraryBookSamples) {
+    const category = sample.category
+      ? categoryByName[sample.category] || categoryByCode[sample.category]
+      : null;
+
+    const book = await prisma.libraryBook.upsert({
+      where: sample.isbn ? { isbn: sample.isbn } : { title: sample.title },
+      update: {
+        title: sample.title,
+        author: sample.author || null,
+        publisher: sample.publisher || null,
+        publishedYear: sample.publishedYear || null,
+        summary: sample.summary || null,
+        isArchived: false,
+        categoryId: category ? category.id : null,
+      },
+      create: {
+        title: sample.title,
+        isbn: sample.isbn || null,
+        author: sample.author || null,
+        publisher: sample.publisher || null,
+        publishedYear: sample.publishedYear || null,
+        summary: sample.summary || null,
+        isArchived: false,
+        categoryId: category ? category.id : null,
+      },
+    });
+
+    for (const copySample of sample.copies ?? []) {
+      const status = copySample.status || "AVAILABLE";
+      let copy;
+      if (copySample.barcode) {
+        copy = await prisma.libraryCopy.upsert({
+          where: { barcode: copySample.barcode },
+          update: {
+            bookId: book.id,
+            status,
+            acquiredAt: parseDate(copySample.acquiredAt),
+            location: copySample.location || null,
+            isArchived: false,
+          },
+          create: {
+            bookId: book.id,
+            barcode: copySample.barcode,
+            status,
+            acquiredAt: parseDate(copySample.acquiredAt),
+            location: copySample.location || null,
+            isArchived: false,
+          },
+        });
+      } else {
+        copy = await prisma.libraryCopy.create({
+          data: {
+            bookId: book.id,
+            status,
+            acquiredAt: parseDate(copySample.acquiredAt),
+            location: copySample.location || null,
+            isArchived: false,
+          },
+        });
+      }
+
+      if (copySample.barcode) {
+        copyByBarcode.set(copySample.barcode, copy);
+      }
+    }
+  }
+
+  for (const sample of libraryBookSamples) {
+    for (const loanSample of sample.loans ?? []) {
+      const copy = loanSample.barcode ? copyByBarcode.get(loanSample.barcode) : null;
+      const student = loanSample.studentNumber
+        ? studentByNumber[loanSample.studentNumber]
+        : null;
+
+      if (!copy || !student) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Skipping library loan seed for barcode ${loanSample.barcode} and student ${loanSample.studentNumber}`
+        );
+        continue;
+      }
+
+      const issuedAt = parseDate(loanSample.issuedAt) || new Date();
+      const dueAt = parseDate(loanSample.dueAt);
+      const returnedAt = parseDate(loanSample.returnedAt);
+
+      const issuedById = loanSample.issuedBy
+        ? users[loanSample.issuedBy]?.id || users.admin.id
+        : users.admin.id;
+      const receivedById = loanSample.receivedBy
+        ? users[loanSample.receivedBy]?.id || users.admin.id
+        : null;
+
+      const existing = await prisma.libraryLoan.findFirst({
+        where: { copyId: copy.id, issuedAt },
+      });
+
+      if (existing) {
+        await prisma.libraryLoan.update({
+          where: { id: existing.id },
+          data: {
+            studentId: student.id,
+            issuedById,
+            receivedById,
+            dueAt,
+            returnedAt,
+            notes: loanSample.notes || null,
+          },
+        });
+      } else {
+        await prisma.libraryLoan.create({
+          data: {
+            copyId: copy.id,
+            studentId: student.id,
+            issuedById,
+            receivedById,
+            issuedAt,
+            dueAt,
+            returnedAt,
+            notes: loanSample.notes || null,
+          },
+        });
+      }
+
+      await prisma.libraryCopy.update({
+        where: { id: copy.id },
+        data: {
+          status: returnedAt ? "AVAILABLE" : "LOANED",
+        },
+      });
+    }
+  }
+}
+
 async function main() {
   const saltRounds = Number(process.env.BCRYPT_COST || 10);
 
@@ -1079,13 +1299,14 @@ async function main() {
   await seedStudents(lookupData, users);
   await seedTeachers(lookupData, users);
   await seedFeeData(users);
+  await seedLibraryData(users);
   await seedClassroomsAndGrades(lookupData);
 }
 
 main()
   .then(async () => {
     console.log(
-      "Database seeded with default lookups, demo users, and representative student/teacher records."
+      "Database seeded with default lookups, demo users, and representative academic, fee, and library records."
     );
     await prisma.$disconnect();
   })

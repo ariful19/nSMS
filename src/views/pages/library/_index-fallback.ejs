@@ -1,0 +1,73 @@
+<div class="card">
+  <header class="card__header">
+    <h1 class="card__title">Library catalog</h1>
+    <p class="card__subtitle">Browse recently added books and availability at a glance.</p>
+  </header>
+  <div class="card__body">
+    <% if ((books || []).length) { %>
+      <table class="table table--responsive">
+        <thead>
+          <tr>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Category</th>
+            <th scope="col">Copies</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% books.forEach(function (book) { %>
+            <tr>
+              <th scope="row">
+                <a href="/library/books/<%= book.id %>"><%= book.title %></a>
+              </th>
+              <td><%= book.author || "—" %></td>
+              <td><%= (book.category && book.category.name) || "Uncategorized" %></td>
+              <td>
+                <strong><%= book.copySummary.available %></strong>
+                of
+                <%= book.copySummary.total %>
+                available
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p class="text-muted">No books have been added yet. Use the “Add book” button to create the first record.</p>
+    <% } %>
+  </div>
+</div>
+
+<div class="card">
+  <header class="card__header">
+    <h2 class="card__title">Recent loans</h2>
+    <p class="card__subtitle">Latest check-outs and returns recorded by the library team.</p>
+  </header>
+  <div class="card__body">
+    <% if ((recentLoans || []).length) { %>
+      <ul class="list list--loans">
+        <% recentLoans.forEach(function (loan) { %>
+          <li class="list__item">
+            <div class="list__primary">
+              <strong><%= (loan.book && loan.book.title) || "Unknown title" %></strong>
+              <span class="text-muted">copy <%= loan.copy ? loan.copy.barcode || loan.copy.id : "—" %></span>
+            </div>
+            <div class="list__secondary">
+              <span>Borrower: <%= loan.student ? loan.student.name : "Unknown" %></span>
+              <span>
+                Issued <%= new Date(loan.issuedAt).toLocaleDateString() %>
+                <% if (loan.returnedAt) { %>
+                  · Returned <%= new Date(loan.returnedAt).toLocaleDateString() %>
+                <% } else if (loan.dueAt) { %>
+                  · Due <%= new Date(loan.dueAt).toLocaleDateString() %>
+                <% } %>
+              </span>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p class="text-muted">No recent loan activity.</p>
+    <% } %>
+  </div>
+</div>

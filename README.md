@@ -21,8 +21,9 @@ layout shell.
    npm run db:seed
    ```
    The default SQLite database is stored at `./dev.db`. The seed now loads full lookup tables (grade levels, statuses, genders)
-   along with demo student/teacher records linked to the default accounts. Set the `SEED_*` environment variables before
-   running the command if you want to override default passwords.
+   along with demo student/teacher records linked to the default accounts, representative fee ledger entries, and a starter
+   library catalog with sample copies and loans. Set the `SEED_*` environment variables before running the command if you want
+   to override default passwords.
 4. **Start the server**
    ```bash
    npm run dev
@@ -89,6 +90,18 @@ code changes.
 ## Manual QA
 
 For end-to-end verification steps covering create, edit, and list flows, see [`doc/manual-qa-checklist.md`](doc/manual-qa-checklist.md).
+
+## Library Module
+
+The Library workspace (available to Admin and Staff roles) introduces searchable catalog management and loan tracking:
+
+- Browse or filter the catalog by keyword or category, with availability counts for each title.
+- Add new books with metadata, register additional copy barcodes, and archive outdated entries.
+- Issue loans after selecting an available copy and locating a borrower via the shared student search, and mark loans as
+  returned once books come back.
+- Review recent library activity from the dashboard or from each book’s detail page.
+
+After running `npm run db:seed`, sign in as `staff@example.com` to explore the module with the seeded titles and loans.
 
 ## Testing Authentication Flow
 
