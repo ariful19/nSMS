@@ -3,7 +3,9 @@
     class="page__section"
     data-vue-app="FeeReceiptApp"
     data-state-id="fees-receipt-state"
-  ></div>
+  >
+    <%- include("./_receipt-fallback", { receipt, formatCurrency }) %>
+  </div>
 
   <noscript>
     <%- include("./_receipt-fallback", { receipt, formatCurrency }) %>
