@@ -1,0 +1,15 @@
+<section class="page page--notices-form">
+  <div
+    class="page__section"
+    data-vue-app="NoticeFormApp"
+    data-state-id="notice-form-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_form-fallback", { lookups, formValues, errors, isEditMode, noticeId, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="notice-form-state">
+  <%- formState || '{}' %>
+</script>

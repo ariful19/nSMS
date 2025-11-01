@@ -9,6 +9,8 @@ const classRoutes = require("./classRoutes");
 const reportRoutes = require("./reportRoutes");
 const feeRoutes = require("./feeRoutes");
 const libraryRoutes = require("./libraryRoutes");
+const noticeRoutes = require("./noticeRoutes");
+const eventRoutes = require("./eventRoutes");
 
 const router = Router();
 
@@ -21,5 +23,7 @@ router.use("/classes", classRoutes);
 router.use("/reports", reportRoutes);
 router.use("/fees", feeRoutes);
 router.use("/library", libraryRoutes);
+router.use("/notices", noticeRoutes);
+router.use("/events", eventRoutes);
 
 module.exports = router;

@@ -1,0 +1,86 @@
+<section class="card card--form">
+  <header class="card__header">
+    <div>
+      <h1 class="card__title"><%= isEditMode ? 'Edit notice' : 'Create notice' %></h1>
+      <p class="card__subtitle">Share updates with specific audiences and schedule publication windows.</p>
+    </div>
+    <a class="btn btn--ghost" href="/notices">Back to list</a>
+  </header>
+
+  <% if (errors && errors.length) { %>
+    <div class="alert alert--danger" role="alert">
+      <p><strong>We ran into a few issues:</strong></p>
+      <ul>
+        <% errors.forEach((error) => { %>
+          <li><%= error %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= isEditMode ? `/notices/${noticeId}/edit` : '/notices/create' %>" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+    <label class="form__field">
+      <span class="form__label">Title *</span>
+      <input type="text" name="title" value="<%= formValues.title || '' %>" required />
+    </label>
+
+    <label class="form__field">
+      <span class="form__label">Summary</span>
+      <textarea name="summary" rows="2"><%= formValues.summary || '' %></textarea>
+    </label>
+
+    <label class="form__field form__field--full">
+      <span class="form__label">Content *</span>
+      <textarea name="content" rows="6" required><%= formValues.content || '' %></textarea>
+    </label>
+
+    <div class="form__grid">
+      <label class="form__field">
+        <span class="form__label">Status</span>
+        <select name="status">
+          <option value="">Draft</option>
+          <% (lookups.statuses || []).forEach((status) => { %>
+            <option value="<%= status %>" <%= formValues.status === status ? 'selected' : '' %>><%= status %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Publish at</span>
+        <input type="datetime-local" name="publishAt" value="<%= formValues.publishAt || '' %>" />
+      </label>
+      <label class="form__field">
+        <span class="form__label">Expires at</span>
+        <input type="datetime-local" name="expiresAt" value="<%= formValues.expiresAt || '' %>" />
+      </label>
+      <label class="form__field form__field--checkbox">
+        <input type="checkbox" name="isPinned" value="true" <%= formValues.isPinned ? 'checked' : '' %> />
+        <span>Pin to top</span>
+      </label>
+    </div>
+
+    <fieldset class="form__fieldset">
+      <legend class="form__legend">Audience</legend>
+      <p class="form__hint">Choose one or more roles that should receive this notice.</p>
+      <div class="form__checkbox-grid">
+        <% (lookups.roles || []).forEach((role) => { %>
+          <label class="form__checkbox">
+            <input
+              type="checkbox"
+              name="audienceRoleIds"
+              value="<%= role.id %>"
+              <%= (formValues.audienceRoleIds || []).includes(String(role.id)) ? 'checked' : '' %>
+            />
+            <span><%= role.name %></span>
+          </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <div class="form__actions">
+      <button type="submit" class="btn btn--primary"><%= isEditMode ? 'Save changes' : 'Create notice' %></button>
+      <a class="btn btn--link" href="/notices">Cancel</a>
+    </div>
+  </form>
+</section>

@@ -24,6 +24,7 @@ module.exports = defineConfig({
         academic: path.resolve(__dirname, "src/client/academic/main.js"),
         fees: path.resolve(__dirname, "src/client/fees/main.js"),
         library: path.resolve(__dirname, "src/client/library/main.js"),
+        communications: path.resolve(__dirname, "src/client/communications/main.js"),
       },
       output: {
         entryFileNames: "[name].js",

@@ -1,0 +1,110 @@
+<section class="card card--form">
+  <header class="card__header">
+    <div>
+      <h1 class="card__title"><%= isEditMode ? 'Edit event' : 'Create event' %></h1>
+      <p class="card__subtitle">Publish school happenings, professional learning, and community gatherings.</p>
+    </div>
+    <a class="btn btn--ghost" href="/events">Back to events</a>
+  </header>
+
+  <% if (errors && errors.length) { %>
+    <div class="alert alert--danger" role="alert">
+      <p><strong>We ran into a few issues:</strong></p>
+      <ul>
+        <% errors.forEach((error) => { %>
+          <li><%= error %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= isEditMode ? `/events/${eventId}/edit` : '/events/create' %>" class="form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+    <label class="form__field">
+      <span class="form__label">Title *</span>
+      <input type="text" name="title" value="<%= formValues.title || '' %>" required />
+    </label>
+
+    <label class="form__field">
+      <span class="form__label">Summary</span>
+      <textarea name="summary" rows="2"><%= formValues.summary || '' %></textarea>
+    </label>
+
+    <label class="form__field form__field--full">
+      <span class="form__label">Description</span>
+      <textarea name="description" rows="5"><%= formValues.description || '' %></textarea>
+    </label>
+
+    <div class="form__grid">
+      <label class="form__field">
+        <span class="form__label">Location</span>
+        <input type="text" name="location" value="<%= formValues.location || '' %>" />
+      </label>
+      <label class="form__field">
+        <span class="form__label">Status</span>
+        <select name="status">
+          <option value="">Draft</option>
+          <% (lookups.statuses || []).forEach((status) => { %>
+            <option value="<%= status %>" <%= formValues.status === status ? 'selected' : '' %>><%= status %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Visibility</span>
+        <select name="visibility">
+          <option value="">Internal</option>
+          <% (lookups.visibilities || []).forEach((visibility) => { %>
+            <option value="<%= visibility %>" <%= formValues.visibility === visibility ? 'selected' : '' %>><%= visibility %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="form__field form__field--checkbox">
+        <input type="checkbox" name="isAllDay" value="true" <%= formValues.isAllDay ? 'checked' : '' %> />
+        <span>All-day event</span>
+      </label>
+    </div>
+
+    <div class="form__grid">
+      <label class="form__field">
+        <span class="form__label">Starts *</span>
+        <input type="datetime-local" name="startAt" value="<%= formValues.startAt || '' %>" required />
+      </label>
+      <label class="form__field">
+        <span class="form__label">Ends</span>
+        <input type="datetime-local" name="endAt" value="<%= formValues.endAt || '' %>" />
+      </label>
+      <label class="form__field">
+        <span class="form__label">Publish at</span>
+        <input type="datetime-local" name="publishAt" value="<%= formValues.publishAt || '' %>" />
+      </label>
+      <label class="form__field">
+        <span class="form__label">Registration deadline</span>
+        <input type="datetime-local" name="registrationDeadline" value="<%= formValues.registrationDeadline || '' %>" />
+      </label>
+    </div>
+
+    <fieldset class="form__fieldset">
+      <legend class="form__legend">Audience</legend>
+      <p class="form__hint">Select the roles invited to this event.</p>
+      <div class="form__checkbox-grid">
+        <% (lookups.roles || []).forEach((role) => { %>
+          <label class="form__checkbox">
+            <input
+              type="checkbox"
+              name="audienceRoleIds"
+              value="<%= role.id %>"
+              <%= (formValues.audienceRoleIds || []).includes(String(role.id)) ? 'checked' : '' %>
+            />
+            <span><%= role.name %></span>
+          </label>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <div class="form__actions">
+      <button type="submit" class="btn btn--primary"><%= isEditMode ? 'Save changes' : 'Create event' %></button>
+      <a class="btn btn--link" href="/events">Cancel</a>
+    </div>
+  </form>
+</section>

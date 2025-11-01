@@ -7,6 +7,11 @@
       <a href="/teachers" class="layout__nav-link">Teachers</a>
       <a href="/fees" class="layout__nav-link">Fees</a>
       <a href="/library" class="layout__nav-link">Library</a>
+      <a href="/notices" class="layout__nav-link">Notices</a>
+      <a href="/events" class="layout__nav-link">Events</a>
+    <% } else if (hasRole("Teacher") || hasRole("Student")) { %>
+      <a href="/notices" class="layout__nav-link">Notices</a>
+      <a href="/events" class="layout__nav-link">Events</a>
     <% } %>
     <span class="layout__nav-user">
       <span class="layout__nav-greeting">Hi, <%= currentUser.displayName %></span>

@@ -1,0 +1,40 @@
+<article class="notice-card">
+  <header class="notice-card__header">
+    <h2 class="notice-card__title">
+      <a href="/notices/<%= notice.id %>"><%= notice.title %></a>
+    </h2>
+    <span class="badge badge--status badge--status-<%= notice.status.toLowerCase() %>">
+      <%= notice.status %>
+    </span>
+  </header>
+  <% if (notice.summary) { %>
+    <p class="notice-card__summary"><%= notice.summary %></p>
+  <% } %>
+  <dl class="notice-card__meta">
+    <% const publishDate = notice.publishAt ? new Date(notice.publishAt) : null; %>
+    <% const expiresDate = notice.expiresAt ? new Date(notice.expiresAt) : null; %>
+    <% if (publishDate && !Number.isNaN(publishDate.getTime())) { %>
+      <div>
+        <dt>Published</dt>
+        <dd><time datetime="<%= publishDate.toISOString() %>"><%= publishDate.toLocaleString() %></time></dd>
+      </div>
+    <% } %>
+    <% if (expiresDate && !Number.isNaN(expiresDate.getTime())) { %>
+      <div>
+        <dt>Visible through</dt>
+        <dd><time datetime="<%= expiresDate.toISOString() %>"><%= expiresDate.toLocaleDateString() %></time></dd>
+      </div>
+    <% } %>
+    <% if (notice.audiences && notice.audiences.length > 0) { %>
+      <div>
+        <dt>Audience</dt>
+        <dd>
+          <%= notice.audiences
+            .map((audience) => audience.role && audience.role.name)
+            .filter(Boolean)
+            .join(", ") || "All" %>
+        </dd>
+      </div>
+    <% } %>
+  </dl>
+</article>

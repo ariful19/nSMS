@@ -103,6 +103,17 @@ The Library workspace (available to Admin and Staff roles) introduces searchable
 
 After running `npm run db:seed`, sign in as `staff@example.com` to explore the module with the seeded titles and loans.
 
+## Communications Module
+
+Phase 6 adds the first communications features to the migrated app. Admin and Staff members can publish rich-text notices,
+target them to specific roles, schedule publication windows, and pin critical updates. The new Events workspace lets teams
+promote upcoming activities with start/end times, locations, and optional registration deadlines, while Teachers and Students
+can review and RSVP to the events they are invited to. Both modules ship with Vue-powered experiences for filtering and
+previewing content, and degrade gracefully with server-rendered fallbacks.
+
+The Prisma seed script now provisions sample notices and events so the dashboard highlights, notice center, and event
+timeline are populated immediately after running `npm run db:seed`.
+
 ## Testing Authentication Flow
 
 1. Navigate to `/auth/login` and sign in with the admin credentials.

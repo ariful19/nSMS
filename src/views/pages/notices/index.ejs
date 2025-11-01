@@ -1,0 +1,15 @@
+<section class="page page--notices">
+  <div
+    class="page__section"
+    data-vue-app="NoticeCenterApp"
+    data-state-id="notice-index-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_index-fallback", { notices, lookups, filters, canManage, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="notice-index-state">
+  <%- indexState || '{}' %>
+</script>

@@ -1,0 +1,46 @@
+<article class="event-card">
+  <header class="event-card__header">
+    <h2 class="event-card__title">
+      <a href="/events/<%= event.id %>"><%= event.title %></a>
+    </h2>
+    <span class="badge badge--status badge--status-<%= event.status.toLowerCase() %>">
+      <%= event.status %>
+    </span>
+  </header>
+  <% if (event.summary) { %>
+    <p class="event-card__summary"><%= event.summary %></p>
+  <% } %>
+  <dl class="event-card__meta">
+    <% const startDate = event.startAt ? new Date(event.startAt) : null; %>
+    <% const endDate = event.endAt ? new Date(event.endAt) : null; %>
+    <% if (startDate && !Number.isNaN(startDate.getTime())) { %>
+      <div>
+        <dt>Starts</dt>
+        <dd><time datetime="<%= startDate.toISOString() %>"><%= startDate.toLocaleString() %></time></dd>
+      </div>
+    <% } %>
+    <% if (endDate && !Number.isNaN(endDate.getTime())) { %>
+      <div>
+        <dt>Ends</dt>
+        <dd><time datetime="<%= endDate.toISOString() %>"><%= endDate.toLocaleString() %></time></dd>
+      </div>
+    <% } %>
+    <% if (event.location) { %>
+      <div>
+        <dt>Location</dt>
+        <dd><%= event.location %></dd>
+      </div>
+    <% } %>
+    <% if (event.audiences && event.audiences.length > 0) { %>
+      <div>
+        <dt>Audience</dt>
+        <dd>
+          <%= event.audiences
+            .map((audience) => audience.role && audience.role.name)
+            .filter(Boolean)
+            .join(", ") || "All" %>
+        </dd>
+      </div>
+    <% } %>
+  </dl>
+</article>
