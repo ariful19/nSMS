@@ -166,6 +166,7 @@ async function submitLoan() {
     const response = await fetch("/library/loans", {
       method: "POST",
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
         "X-CSRF-Token": props.csrfToken,
       },
@@ -177,11 +178,19 @@ async function submitLoan() {
         notes: notes.value || undefined,
       }),
     });
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({ error: "" }));
-      throw new Error(data.error || `Request failed with status ${response.status}`);
+    let data = null;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      data = null;
     }
-    const data = await response.json();
+    if (!response.ok) {
+      const errorMessage = data?.error || `Request failed with status ${response.status}`;
+      throw new Error(errorMessage);
+    }
+    if (!data || typeof data !== "object") {
+      throw new Error("Invalid response received from server.");
+    }
     emit("loan-issued", data.loan);
     resetForm();
   } catch (error_) {
