@@ -24,6 +24,11 @@ function createRouterTestApp(router, { basePath = "/", sessionResolver = default
     req.flash = jest.fn();
     res.locals = res.locals || {};
     res.locals.csrfToken = "test-token";
+    res.locals.hasRole = (role) => {
+      const normalized = typeof role === "string" ? role.toLowerCase() : "";
+      const roleNames = Array.isArray(req.session?.roleNames) ? req.session.roleNames : [];
+      return normalized ? roleNames.includes(normalized) : false;
+    };
     next();
   });
 

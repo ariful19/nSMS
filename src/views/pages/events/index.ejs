@@ -1,0 +1,15 @@
+<section class="page page--events">
+  <div
+    class="page__section"
+    data-vue-app="EventBoardApp"
+    data-state-id="event-index-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_index-fallback", { events, lookups, filters, canManage, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="event-index-state">
+  <%- indexState || '{}' %>
+</script>

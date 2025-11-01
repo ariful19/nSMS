@@ -1,0 +1,15 @@
+<section class="page page--notices-detail">
+  <div
+    class="page__section"
+    data-vue-app="NoticeDetailApp"
+    data-state-id="notice-detail-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_detail-fallback", { notice, canManage, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="notice-detail-state">
+  <%- detailState || '{}' %>
+</script>

@@ -1,0 +1,94 @@
+<article class="event-detail">
+  <header class="event-detail__header">
+    <div>
+      <h1 class="event-detail__title"><%= event.title %></h1>
+      <% if (event.summary) { %>
+        <p class="event-detail__summary"><%= event.summary %></p>
+      <% } %>
+      <div class="event-detail__meta">
+        <% const startDate = event.startAt ? new Date(event.startAt) : null; %>
+        <% const endDate = event.endAt ? new Date(event.endAt) : null; %>
+        <% if (startDate && !Number.isNaN(startDate.getTime())) { %>
+          <span>Starts <time datetime="<%= startDate.toISOString() %>"><%= startDate.toLocaleString() %></time></span>
+        <% } %>
+        <% if (endDate && !Number.isNaN(endDate.getTime())) { %>
+          <span>Ends <time datetime="<%= endDate.toISOString() %>"><%= endDate.toLocaleString() %></time></span>
+        <% } %>
+        <span class="badge badge--status badge--status-<%= event.status.toLowerCase() %>"><%= event.status %></span>
+        <span class="badge badge--status badge--visibility-<%= event.visibility.toLowerCase() %>">
+          <%= event.visibility %>
+        </span>
+      </div>
+    </div>
+    <% if (canManage) { %>
+      <div class="event-detail__actions">
+        <a href="/events/<%= event.id %>/edit" class="btn">Edit</a>
+        <form
+          method="post"
+          action="/events/<%= event.id %>/delete"
+          class="form form--inline"
+          onsubmit="return confirm('Delete this event?');"
+        >
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button type="submit" class="btn btn--danger">Delete</button>
+        </form>
+      </div>
+    <% } %>
+  </header>
+
+  <section class="event-detail__content">
+    <% if (event.location) { %>
+      <p class="event-detail__location">📍 <strong><%= event.location %></strong></p>
+    <% } %>
+    <% if (event.description) { %>
+      <div class="event-detail__description"><%= event.description %></div>
+    <% } %>
+  </section>
+
+  <% if (event.audiences && event.audiences.length > 0) { %>
+    <section class="event-detail__audience">
+      <h2>Audience</h2>
+      <ul>
+        <% event.audiences.forEach((audience) => { %>
+          <% if (audience.role && audience.role.name) { %>
+            <li><%= audience.role.name %></li>
+          <% } %>
+        <% }) %>
+      </ul>
+    </section>
+  <% } %>
+
+  <section class="event-detail__rsvp">
+    <h2>Your RSVP</h2>
+    <form method="post" action="/events/<%= event.id %>/rsvp" class="form form--stacked">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <label class="form__field">
+        <span class="form__label">Response</span>
+        <select name="status">
+          <% (lookups.rsvpStatuses || []).forEach((status) => { %>
+            <option value="<%= status %>" <%= registration && registration.status === status ? 'selected' : '' %>>
+              <%= status %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+      <label class="form__field">
+        <span class="form__label">Notes</span>
+        <textarea name="notes" rows="2"><%= registration && registration.notes ? registration.notes : '' %></textarea>
+      </label>
+      <div class="form__actions">
+        <button type="submit" class="btn btn--primary">Save response</button>
+      </div>
+    </form>
+    <% if (registration) { %>
+      <form
+        method="post"
+        action="/events/<%= event.id %>/rsvp/cancel"
+        class="form form--inline event-detail__cancel"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <button type="submit" class="btn btn--link">Cancel RSVP</button>
+      </form>
+    <% } %>
+  </section>
+</article>

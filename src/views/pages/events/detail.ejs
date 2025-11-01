@@ -1,0 +1,15 @@
+<section class="page page--events-detail">
+  <div
+    class="page__section"
+    data-vue-app="EventDetailApp"
+    data-state-id="event-detail-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_detail-fallback", { event, registration, lookups, canManage, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="event-detail-state">
+  <%- detailState || '{}' %>
+</script>

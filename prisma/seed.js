@@ -119,6 +119,28 @@ function parseDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function parseDateTime(value) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function slugify(value) {
+  if (!value) {
+    return "";
+  }
+  return value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .substring(0, 60);
+}
+
 async function seedLookups() {
   await upsertLookup(prisma.gender, genderSeeds);
   await upsertLookup(prisma.studentStatus, studentStatusSeeds);
@@ -415,6 +437,107 @@ const teacherSamples = [
       primarySubject: "Earth Science",
       notes: "On sabbatical during spring term.",
     },
+  },
+];
+
+const noticeSamples = [
+  {
+    slug: "welcome-back-week",
+    title: "Welcome Back Week Highlights",
+    summary: "Key reminders and celebrations as we kick off the new term.",
+    content:
+      "<p>Our welcome back week is underway! Don't miss the student activities fair on Wednesday and the family breakfast on Friday morning.</p><p>Teachers should submit advisory updates by Thursday at noon.</p>",
+    status: "PUBLISHED",
+    publishAt: "2024-08-15T13:00:00Z",
+    expiresAt: "2024-09-01T00:00:00Z",
+    isPinned: true,
+    audiences: ["Student", "Teacher", "Staff"],
+    createdBy: "staff",
+  },
+  {
+    slug: "technology-upgrades",
+    title: "Technology Lab Upgrades",
+    summary: "Scheduled maintenance and what to expect from the refreshed computer labs.",
+    content:
+      "<p>The main computer lab will be offline from September 12-13 for network upgrades. Please plan to use the library collaboration space if you need computers during that window.</p><p>Staff training on the new equipment is scheduled for September 16.</p>",
+    status: "SCHEDULED",
+    publishAt: "2024-09-05T14:30:00Z",
+    expiresAt: "2024-09-20T00:00:00Z",
+    isPinned: false,
+    audiences: ["Teacher", "Staff"],
+    createdBy: "admin",
+  },
+  {
+    slug: "family-newsletter",
+    title: "September Family Newsletter",
+    summary: "Share this monthly roundup with guardians and caregivers.",
+    content:
+      "<p>The September newsletter includes highlights from athletics, classroom spotlights, and important reminders about back-to-school nights. Printable PDFs are available in English and Spanish.</p>",
+    status: "PUBLISHED",
+    publishAt: "2024-08-28T12:00:00Z",
+    expiresAt: "2024-10-01T00:00:00Z",
+    isPinned: false,
+    audiences: ["Student", "Teacher", "Staff"],
+    createdBy: "staff",
+  },
+];
+
+const eventSamples = [
+  {
+    slug: "fall-open-house",
+    title: "Fall Open House",
+    summary: "An evening for prospective families to explore our campus and programs.",
+    description:
+      "<p>Faculty and student ambassadors will lead classroom tours. Light refreshments will be served in the cafeteria.</p>",
+    location: "Main Campus",
+    status: "PUBLISHED",
+    visibility: "COMMUNITY",
+    startAt: "2024-10-03T22:00:00Z",
+    endAt: "2024-10-04T00:00:00Z",
+    publishAt: "2024-08-20T13:00:00Z",
+    registrationDeadline: "2024-09-30T23:59:59Z",
+    isAllDay: false,
+    audiences: ["Student", "Teacher", "Staff"],
+    createdBy: "admin",
+    registrations: [
+      { userKey: "teacher", status: "GOING" },
+      { userKey: "staff", status: "GOING" },
+    ],
+  },
+  {
+    slug: "staff-retreat",
+    title: "Staff Wellness Retreat",
+    summary: "A day of collaboration and wellness workshops for all staff members.",
+    description:
+      "<p>We'll gather offsite at Willow Creek Center for professional learning, mindfulness sessions, and team-building activities. Transportation departs from campus at 8:00 AM.</p>",
+    location: "Willow Creek Center",
+    status: "SCHEDULED",
+    visibility: "INTERNAL",
+    startAt: "2024-09-20T13:00:00Z",
+    endAt: "2024-09-20T21:00:00Z",
+    publishAt: "2024-08-25T12:00:00Z",
+    registrationDeadline: "2024-09-10T23:59:59Z",
+    isAllDay: false,
+    audiences: ["Teacher", "Staff"],
+    createdBy: "staff",
+    registrations: [{ userKey: "teacher", status: "INTERESTED" }],
+  },
+  {
+    slug: "homecoming-week",
+    title: "Homecoming Spirit Week",
+    summary: "Theme days, pep rally, and the big game to celebrate our community.",
+    description:
+      "<p>Check the daily dress themes and volunteer opportunities for parents and guardians. The pep rally will be Friday afternoon with the game that evening.</p>",
+    location: "Gymnasium & Athletics Field",
+    status: "PUBLISHED",
+    visibility: "COMMUNITY",
+    startAt: "2024-10-14T12:00:00Z",
+    endAt: "2024-10-19T02:00:00Z",
+    publishAt: "2024-09-10T12:00:00Z",
+    registrationDeadline: null,
+    isAllDay: false,
+    audiences: ["Student", "Teacher", "Staff"],
+    createdBy: "admin",
   },
 ];
 
@@ -741,6 +864,159 @@ async function seedTeachers(lookupData, users) {
       create: createData,
       update: updateData,
     });
+  }
+}
+
+async function seedCommunications(users) {
+  const roleByName = users.roleByName || {};
+
+  for (const sample of noticeSamples) {
+    const slug = sample.slug || slugify(sample.title);
+    const publishAt = parseDateTime(sample.publishAt) || null;
+    const expiresAt = parseDateTime(sample.expiresAt) || null;
+    const createdById = sample.createdBy && users[sample.createdBy] ? users[sample.createdBy].id : users.admin.id;
+    const updatedById = sample.updatedBy && users[sample.updatedBy]
+      ? users[sample.updatedBy].id
+      : createdById;
+
+    const notice = await prisma.notice.upsert({
+      where: { slug },
+      update: {
+        title: sample.title,
+        summary: sample.summary || null,
+        content: sample.content,
+        status: sample.status,
+        publishAt,
+        expiresAt,
+        isPinned: Boolean(sample.isPinned),
+        updatedById,
+      },
+      create: {
+        slug,
+        title: sample.title,
+        summary: sample.summary || null,
+        content: sample.content,
+        status: sample.status,
+        publishAt,
+        expiresAt,
+        isPinned: Boolean(sample.isPinned),
+        createdById,
+        updatedById,
+      },
+    });
+
+    if (Array.isArray(sample.audiences)) {
+      await prisma.noticeAudienceRole.deleteMany({ where: { noticeId: notice.id } });
+      const roleIds = sample.audiences
+        .map((roleName) => roleByName[roleName]?.id)
+        .filter(Boolean);
+      const uniqueRoleIds = [...new Set(roleIds)];
+      if (uniqueRoleIds.length > 0) {
+        await prisma.noticeAudienceRole.createMany({
+          data: uniqueRoleIds.map((roleId) => ({ noticeId: notice.id, roleId })),
+        });
+      }
+    }
+  }
+
+  for (const sample of eventSamples) {
+    const slug = sample.slug || slugify(sample.title);
+    const startAt = parseDateTime(sample.startAt) || new Date();
+    const endAt = parseDateTime(sample.endAt);
+    const publishAt = parseDateTime(sample.publishAt) || null;
+    const registrationDeadline = parseDateTime(sample.registrationDeadline) || null;
+    const createdById = sample.createdBy && users[sample.createdBy] ? users[sample.createdBy].id : users.admin.id;
+    const updatedById = sample.updatedBy && users[sample.updatedBy]
+      ? users[sample.updatedBy].id
+      : createdById;
+
+    const event = await prisma.event.upsert({
+      where: { slug },
+      update: {
+        title: sample.title,
+        summary: sample.summary || null,
+        description: sample.description || null,
+        location: sample.location || null,
+        status: sample.status,
+        visibility: sample.visibility || "INTERNAL",
+        startAt,
+        endAt,
+        publishAt,
+        registrationDeadline,
+        isAllDay: Boolean(sample.isAllDay),
+        updatedById,
+      },
+      create: {
+        slug,
+        title: sample.title,
+        summary: sample.summary || null,
+        description: sample.description || null,
+        location: sample.location || null,
+        status: sample.status,
+        visibility: sample.visibility || "INTERNAL",
+        startAt,
+        endAt,
+        publishAt,
+        registrationDeadline,
+        isAllDay: Boolean(sample.isAllDay),
+        createdById,
+        updatedById,
+      },
+    });
+
+    if (Array.isArray(sample.audiences)) {
+      await prisma.eventAudienceRole.deleteMany({ where: { eventId: event.id } });
+      const roleIds = sample.audiences
+        .map((roleName) => roleByName[roleName]?.id)
+        .filter(Boolean);
+      const uniqueRoleIds = [...new Set(roleIds)];
+      if (uniqueRoleIds.length > 0) {
+        await prisma.eventAudienceRole.createMany({
+          data: uniqueRoleIds.map((roleId) => ({ eventId: event.id, roleId })),
+        });
+      }
+    }
+
+    if (Array.isArray(sample.registrations)) {
+      const userIds = [];
+      for (const registration of sample.registrations) {
+        const userRecord = registration.userKey ? users[registration.userKey] : null;
+        if (!userRecord) {
+          continue;
+        }
+        userIds.push(userRecord.id);
+        const respondedAt = parseDateTime(registration.respondedAt) || new Date();
+        await prisma.eventRegistration.upsert({
+          where: {
+            eventId_userId: {
+              eventId: event.id,
+              userId: userRecord.id,
+            },
+          },
+          update: {
+            status: registration.status || "GOING",
+            respondedAt,
+            notes: registration.notes || null,
+          },
+          create: {
+            eventId: event.id,
+            userId: userRecord.id,
+            status: registration.status || "GOING",
+            respondedAt,
+            notes: registration.notes || null,
+          },
+        });
+      }
+
+      if (userIds.length > 0) {
+        await prisma.eventRegistration.deleteMany({
+          where: {
+            eventId: event.id,
+            userId: { notIn: userIds },
+          },
+        });
+      }
+    }
   }
 }
 
@@ -1298,6 +1574,7 @@ async function main() {
   const users = await seedRolesAndUsers(saltRounds);
   await seedStudents(lookupData, users);
   await seedTeachers(lookupData, users);
+  await seedCommunications(users);
   await seedFeeData(users);
   await seedLibraryData(users);
   await seedClassroomsAndGrades(lookupData);
@@ -1306,7 +1583,7 @@ async function main() {
 main()
   .then(async () => {
     console.log(
-      "Database seeded with default lookups, demo users, and representative academic, fee, and library records."
+      "Database seeded with default lookups, demo users, and representative academic, communications, fee, and library records."
     );
     await prisma.$disconnect();
   })

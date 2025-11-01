@@ -1,0 +1,54 @@
+<article class="notice-detail">
+  <header class="notice-detail__header">
+    <div>
+      <h1 class="notice-detail__title"><%= notice.title %></h1>
+      <% if (notice.summary) { %>
+        <p class="notice-detail__summary"><%= notice.summary %></p>
+      <% } %>
+      <div class="notice-detail__meta">
+        <% const publishDate = notice.publishAt ? new Date(notice.publishAt) : null; %>
+        <% if (publishDate && !Number.isNaN(publishDate.getTime())) { %>
+          <span>Published <time datetime="<%= publishDate.toISOString() %>"><%= publishDate.toLocaleString() %></time></span>
+        <% } %>
+        <% if (notice.expiresAt) { %>
+          <% const expiresDate = new Date(notice.expiresAt); %>
+          <% if (!Number.isNaN(expiresDate.getTime())) { %>
+            <span>Visible through <time datetime="<%= expiresDate.toISOString() %>"><%= expiresDate.toLocaleDateString() %></time></span>
+          <% } %>
+        <% } %>
+        <span class="badge badge--status badge--status-<%= notice.status.toLowerCase() %>"><%= notice.status %></span>
+      </div>
+    </div>
+    <% if (canManage) { %>
+      <div class="notice-detail__actions">
+        <a href="/notices/<%= notice.id %>/edit" class="btn">Edit</a>
+        <form
+          method="post"
+          action="/notices/<%= notice.id %>/delete"
+          class="form form--inline"
+          onsubmit="return confirm('Delete this notice?');"
+        >
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button type="submit" class="btn btn--danger">Delete</button>
+        </form>
+      </div>
+    <% } %>
+  </header>
+
+  <section class="notice-detail__content">
+    <%- notice.content %>
+  </section>
+
+  <% if (notice.audiences && notice.audiences.length > 0) { %>
+    <footer class="notice-detail__footer">
+      <h2>Target audience</h2>
+      <ul>
+        <% notice.audiences.forEach((audience) => { %>
+          <% if (audience.role && audience.role.name) { %>
+            <li><%= audience.role.name %></li>
+          <% } %>
+        <% }) %>
+      </ul>
+    </footer>
+  <% } %>
+</article>

@@ -1,0 +1,81 @@
+<header class="page__header">
+  <div>
+    <h1 class="page__title">Notices</h1>
+    <p class="page__subtitle">Announcements shared across the community.</p>
+  </div>
+  <div class="page__actions">
+    <form method="get" class="form form--inline" aria-label="Filter notices">
+      <label class="form__field">
+        <span class="form__label">Search</span>
+        <input
+          type="search"
+          name="search"
+          value="<%= filters.search || '' %>"
+          placeholder="Title or summary"
+          class="form__input"
+        />
+      </label>
+      <label class="form__field">
+        <span class="form__label">Status</span>
+        <select name="status">
+          <option value="">All statuses</option>
+          <% (lookups.statuses || []).forEach((status) => { %>
+            <option value="<%= status %>" <%= filters.status === status ? 'selected' : '' %>>
+              <%= status %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+      <% if (canManage) { %>
+        <label class="form__field form__field--checkbox">
+          <input type="checkbox" name="includeExpired" value="true" <%= filters.includeExpired ? 'checked' : '' %> />
+          <span>Show expired</span>
+        </label>
+      <% } %>
+      <label class="form__field">
+        <span class="form__label">Audience</span>
+        <select name="audienceRoleIds" multiple size="3">
+          <% (lookups.roles || []).forEach((role) => { %>
+            <option
+              value="<%= role.id %>"
+              <%= (filters.audienceRoleIds || []).includes(String(role.id)) || (filters.audienceRoleIds || []).includes(role.id) ? 'selected' : '' %>
+            >
+              <%= role.name %>
+            </option>
+          <% }) %>
+        </select>
+      </label>
+      <button type="submit" class="btn">Apply</button>
+      <a href="/notices" class="btn btn--link">Clear</a>
+    </form>
+    <% if (canManage) { %>
+      <a href="/notices/create" class="btn btn--primary">New notice</a>
+    <% } %>
+  </div>
+</header>
+
+<% if (!notices || notices.length === 0) { %>
+  <p class="page__empty">No notices match your filters.</p>
+<% } else { %>
+  <div class="notice-list">
+    <% notices.forEach((notice) => { %>
+      <div class="notice-list__item">
+        <%- include("../../partials/notice-card", { notice }) %>
+        <% if (canManage) { %>
+          <div class="notice-list__actions">
+            <a href="/notices/<%= notice.id %>/edit" class="btn btn--small">Edit</a>
+            <form
+              method="post"
+              action="/notices/<%= notice.id %>/delete"
+              class="form form--inline"
+              onsubmit="return confirm('Delete this notice?');"
+            >
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn--small btn--danger">Delete</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+    <% }) %>
+  </div>
+<% } %>

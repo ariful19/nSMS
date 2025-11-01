@@ -29,6 +29,11 @@ model User {
   recordedFeeEntries FeeLedgerEntry[]
   issuedLibraryLoans   LibraryLoan[] @relation("LibraryLoansIssued")
   receivedLibraryReturns LibraryLoan[] @relation("LibraryLoansReceived")
+  noticesCreated       Notice[]       @relation("NoticeCreatedBy")
+  noticesUpdated       Notice[]       @relation("NoticeUpdatedBy")
+  eventsCreated        Event[]        @relation("EventCreatedBy")
+  eventsUpdated        Event[]        @relation("EventUpdatedBy")
+  eventRegistrations   EventRegistration[]
 }
 
 model Role {
@@ -38,7 +43,9 @@ model Role {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  users UserRole[]
+  users               UserRole[]
+  noticeAudienceRoles NoticeAudienceRole[]
+  eventAudienceRoles  EventAudienceRole[]
 }
 
 model UserRole {
@@ -450,4 +457,120 @@ model EmploymentStatus {
   updatedAt   DateTime @updatedAt
 
   members TeacherStaff[]
+}
+
+enum NoticeStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EventStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  CANCELLED
+}
+
+enum EventVisibility {
+  INTERNAL
+  COMMUNITY
+  PUBLIC
+}
+
+enum RsvpStatus {
+  GOING
+  INTERESTED
+  DECLINED
+}
+
+model Notice {
+  id          Int          @id @default(autoincrement())
+  slug        String       @unique
+  title       String
+  summary     String?
+  content     String
+  status      NoticeStatus @default(DRAFT)
+  publishAt   DateTime?
+  expiresAt   DateTime?
+  isPinned    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdById Int?
+  updatedById Int?
+
+  createdBy User? @relation("NoticeCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("NoticeUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  audiences NoticeAudienceRole[]
+
+  @@index([status])
+  @@index([publishAt])
+  @@index([expiresAt])
+}
+
+model NoticeAudienceRole {
+  noticeId Int
+  roleId   Int
+
+  notice Notice @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([noticeId, roleId])
+  @@index([roleId])
+}
+
+model Event {
+  id                    Int             @id @default(autoincrement())
+  slug                  String          @unique
+  title                 String
+  summary               String?
+  description           String?
+  location              String?
+  status                EventStatus     @default(DRAFT)
+  visibility            EventVisibility @default(INTERNAL)
+  startAt               DateTime
+  endAt                 DateTime?
+  publishAt             DateTime?
+  registrationDeadline  DateTime?
+  isAllDay              Boolean         @default(false)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  createdById           Int?
+  updatedById           Int?
+
+  createdBy     User?                @relation("EventCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy     User?                @relation("EventUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  audiences     EventAudienceRole[]
+  registrations EventRegistration[]
+
+  @@index([status])
+  @@index([visibility])
+  @@index([startAt])
+}
+
+model EventAudienceRole {
+  eventId Int
+  roleId  Int
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  role  Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, roleId])
+  @@index([roleId])
+}
+
+model EventRegistration {
+  id          Int        @id @default(autoincrement())
+  eventId     Int
+  userId      Int
+  status      RsvpStatus @default(GOING)
+  respondedAt DateTime   @default(now())
+  notes       String?
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
 }

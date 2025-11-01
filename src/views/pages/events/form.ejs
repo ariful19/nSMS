@@ -1,0 +1,15 @@
+<section class="page page--events-form">
+  <div
+    class="page__section"
+    data-vue-app="EventFormApp"
+    data-state-id="event-form-state"
+  ></div>
+
+  <noscript>
+    <%- include("./_form-fallback", { lookups, formValues, errors, isEditMode, eventId, csrfToken }) %>
+  </noscript>
+</section>
+
+<script type="application/json" id="event-form-state">
+  <%- formState || '{}' %>
+</script>

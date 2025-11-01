@@ -1,0 +1,33 @@
+<div class="dashboard-fallback">
+  <section class="dashboard-fallback__panel">
+    <header class="dashboard-fallback__header">
+      <h2>Latest notices</h2>
+      <a class="dashboard-fallback__action" href="/notices">View all</a>
+    </header>
+    <% if (!notices || notices.length === 0) { %>
+      <p>No recent notices to display.</p>
+    <% } else { %>
+      <div class="dashboard-fallback__list">
+        <% notices.forEach((notice) => { %>
+          <%- include("../../partials/notice-card", { notice }) %>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="dashboard-fallback__panel">
+    <header class="dashboard-fallback__header">
+      <h2>Upcoming events</h2>
+      <a class="dashboard-fallback__action" href="/events">View calendar</a>
+    </header>
+    <% if (!events || events.length === 0) { %>
+      <p>No upcoming events scheduled.</p>
+    <% } else { %>
+      <div class="dashboard-fallback__list">
+        <% events.forEach((event) => { %>
+          <%- include("../../partials/event-card", { event }) %>
+        <% }) %>
+      </div>
+    <% } %>
+  </section>
+</div>
