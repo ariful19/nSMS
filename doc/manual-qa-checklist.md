@@ -31,6 +31,18 @@ Use this guide when validating student, teacher, and library management flows af
 - [ ] Use the "Issue a loan" form to select the new copy, search for a borrower, and record a loan; confirm it appears in the active loans table.
 - [ ] Mark the loan as returned and check that it moves out of the active list while appearing in the recent activity log.
 
+## Communications module
+
+- [ ] Sign back in as `admin@example.com` and confirm the dashboard hero card shows the pinned "Welcome Back Week Highlights" notice and the "Fall Open House" upcoming event sourced from the seed data.
+- [ ] Navigate to `/notices`; verify the list is pre-populated with at least one published and one scheduled notice, with "Welcome Back Week Highlights" pinned to the top.
+- [ ] Use the status filter to switch between published and scheduled notices and ensure the list updates accordingly.
+- [ ] Start the "Create notice" flow, validate that required fields (title, publish window, summary) surface inline errors when empty, then publish a notice and confirm it appears in the index with the expected audience tags.
+- [ ] Open an existing notice, edit the body content, and ensure the updated copy renders after saving.
+- [ ] Delete a notice and confirm it no longer appears in the listing while a success flash message displays.
+- [ ] Visit `/events` and verify the upcoming events list includes "Fall Open House", "Staff Wellness Retreat", and "Homecoming Spirit Week" with coherent start times.
+- [ ] Switch to a non-admin role (e.g., `teacher@example.com`) and open an event detail page; test the RSVP controls (Going, Interested, Not Going) and ensure the chosen status persists after reloading.
+- [ ] As an admin, create a new event with a future start date and RSVP deadline, then edit it to adjust the schedule and visibility before finally canceling or deleting it to confirm the lifecycle works end-to-end.
+
 ## Monitoring & logging expectations
 
 - [ ] Confirm `APP_DATA_DIR`, `SESSION_STORE_DIR`, and `LOGS_DIR` point to writable locations (production should use persistent storage).

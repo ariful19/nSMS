@@ -3,6 +3,16 @@ const { PrismaClient, Prisma } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
+const now = new Date();
+
+function isoFromNow({ days = 0, hours = 0, minutes = 0, seconds = 0 } = {}) {
+  const date = new Date(now);
+  date.setUTCHours(0, 0, 0, 0);
+  date.setUTCDate(date.getUTCDate() + days);
+  date.setUTCHours(hours, minutes, seconds, 0);
+  return date.toISOString();
+}
+
 function mapByName(records = []) {
   return records.reduce((acc, record) => {
     acc[record.name] = record;
@@ -446,10 +456,10 @@ const noticeSamples = [
     title: "Welcome Back Week Highlights",
     summary: "Key reminders and celebrations as we kick off the new term.",
     content:
-      "<p>Our welcome back week is underway! Don't miss the student activities fair on Wednesday and the family breakfast on Friday morning.</p><p>Teachers should submit advisory updates by Thursday at noon.</p>",
+      "<p>Our welcome back week is underway! Don't miss the student activities fair midweek and the family breakfast on Friday morning.</p><p>Teachers should submit advisory updates by Thursday at noon.</p>",
     status: "PUBLISHED",
-    publishAt: "2024-08-15T13:00:00Z",
-    expiresAt: "2024-09-01T00:00:00Z",
+    publishAt: isoFromNow({ days: -5, hours: 13 }),
+    expiresAt: isoFromNow({ days: 7 }),
     isPinned: true,
     audiences: ["Student", "Teacher", "Staff"],
     createdBy: "staff",
@@ -459,23 +469,23 @@ const noticeSamples = [
     title: "Technology Lab Upgrades",
     summary: "Scheduled maintenance and what to expect from the refreshed computer labs.",
     content:
-      "<p>The main computer lab will be offline from September 12-13 for network upgrades. Please plan to use the library collaboration space if you need computers during that window.</p><p>Staff training on the new equipment is scheduled for September 16.</p>",
+      "<p>The main computer lab will be offline for two days next week for network upgrades. Please plan to use the library collaboration space if you need computers during that window.</p><p>Staff training on the new equipment is scheduled for the following Monday.</p>",
     status: "SCHEDULED",
-    publishAt: "2024-09-05T14:30:00Z",
-    expiresAt: "2024-09-20T00:00:00Z",
+    publishAt: isoFromNow({ days: 2, hours: 14, minutes: 30 }),
+    expiresAt: isoFromNow({ days: 15 }),
     isPinned: false,
     audiences: ["Teacher", "Staff"],
     createdBy: "admin",
   },
   {
     slug: "family-newsletter",
-    title: "September Family Newsletter",
+    title: "Family Newsletter",
     summary: "Share this monthly roundup with guardians and caregivers.",
     content:
-      "<p>The September newsletter includes highlights from athletics, classroom spotlights, and important reminders about back-to-school nights. Printable PDFs are available in English and Spanish.</p>",
+      "<p>This month's newsletter includes highlights from athletics, classroom spotlights, and important reminders about upcoming family nights. Printable PDFs are available in English and Spanish.</p>",
     status: "PUBLISHED",
-    publishAt: "2024-08-28T12:00:00Z",
-    expiresAt: "2024-10-01T00:00:00Z",
+    publishAt: isoFromNow({ days: -2, hours: 12 }),
+    expiresAt: isoFromNow({ days: 20 }),
     isPinned: false,
     audiences: ["Student", "Teacher", "Staff"],
     createdBy: "staff",
@@ -492,10 +502,10 @@ const eventSamples = [
     location: "Main Campus",
     status: "PUBLISHED",
     visibility: "COMMUNITY",
-    startAt: "2024-10-03T22:00:00Z",
-    endAt: "2024-10-04T00:00:00Z",
-    publishAt: "2024-08-20T13:00:00Z",
-    registrationDeadline: "2024-09-30T23:59:59Z",
+    startAt: isoFromNow({ days: 14, hours: 22 }),
+    endAt: isoFromNow({ days: 14, hours: 24 }),
+    publishAt: isoFromNow({ days: -3, hours: 13 }),
+    registrationDeadline: isoFromNow({ days: 12, hours: 23, minutes: 59, seconds: 59 }),
     isAllDay: false,
     audiences: ["Student", "Teacher", "Staff"],
     createdBy: "admin",
@@ -509,14 +519,14 @@ const eventSamples = [
     title: "Staff Wellness Retreat",
     summary: "A day of collaboration and wellness workshops for all staff members.",
     description:
-      "<p>We'll gather offsite at Willow Creek Center for professional learning, mindfulness sessions, and team-building activities. Transportation departs from campus at 8:00 AM.</p>",
+      "<p>We'll gather offsite for professional learning, mindfulness sessions, and team-building activities. Transportation departs from campus at 8:00 AM.</p>",
     location: "Willow Creek Center",
     status: "SCHEDULED",
     visibility: "INTERNAL",
-    startAt: "2024-09-20T13:00:00Z",
-    endAt: "2024-09-20T21:00:00Z",
-    publishAt: "2024-08-25T12:00:00Z",
-    registrationDeadline: "2024-09-10T23:59:59Z",
+    startAt: isoFromNow({ days: 7, hours: 13 }),
+    endAt: isoFromNow({ days: 7, hours: 21 }),
+    publishAt: isoFromNow({ days: 1, hours: 12 }),
+    registrationDeadline: isoFromNow({ days: 5, hours: 23, minutes: 59, seconds: 59 }),
     isAllDay: false,
     audiences: ["Teacher", "Staff"],
     createdBy: "staff",
@@ -531,9 +541,9 @@ const eventSamples = [
     location: "Gymnasium & Athletics Field",
     status: "PUBLISHED",
     visibility: "COMMUNITY",
-    startAt: "2024-10-14T12:00:00Z",
-    endAt: "2024-10-19T02:00:00Z",
-    publishAt: "2024-09-10T12:00:00Z",
+    startAt: isoFromNow({ days: 21, hours: 12 }),
+    endAt: isoFromNow({ days: 25, hours: 2 }),
+    publishAt: isoFromNow({ days: -1, hours: 12 }),
     registrationDeadline: null,
     isAllDay: false,
     audiences: ["Student", "Teacher", "Staff"],
