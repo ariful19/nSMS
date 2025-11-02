@@ -9,11 +9,15 @@ describe("ensureRole middleware", () => {
     req = {
       session: {
         userId: 1,
+        roleNames: [],
       },
+      flash: jest.fn(),
+      accepts: jest.fn().mockReturnValue("html"),
     };
     res = {
       status: jest.fn().mockReturnThis(),
       render: jest.fn(),
+      redirect: jest.fn(),
       locals: {},
     };
     next = jest.fn();
@@ -67,7 +71,6 @@ describe("ensureRole middleware", () => {
 
   test("redirects to login when session is missing", () => {
     req.session = null;
-    res.redirect = jest.fn();
     const middleware = ensureRole(["admin"]);
 
     middleware(req, res, next);

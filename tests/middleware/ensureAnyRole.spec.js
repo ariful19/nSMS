@@ -9,18 +9,22 @@ describe("ensureAnyRole middleware", () => {
     req = {
       session: {
         userId: 1,
+        roleNames: [],
       },
+      flash: jest.fn(),
+      accepts: jest.fn().mockReturnValue("html"),
     };
     res = {
       status: jest.fn().mockReturnThis(),
       render: jest.fn(),
+      redirect: jest.fn(),
       locals: {},
     };
     next = jest.fn();
   });
 
   test("calls next() when user has one of the required roles", () => {
-    res.locals.hasRole = jest.fn((role) => role === "Teacher");
+    req.session.roleNames = ["teacher"];
     const middleware = ensureAnyRole(["Admin", "Teacher", "Staff"]);
 
     middleware(req, res, next);
@@ -30,7 +34,7 @@ describe("ensureAnyRole middleware", () => {
   });
 
   test("calls next() when user has multiple matching roles", () => {
-    res.locals.hasRole = jest.fn((role) => role === "Admin" || role === "Staff");
+    req.session.roleNames = ["admin", "staff"];
     const middleware = ensureAnyRole(["Admin", "Staff"]);
 
     middleware(req, res, next);
@@ -40,7 +44,7 @@ describe("ensureAnyRole middleware", () => {
   });
 
   test("returns 403 when user has none of the required roles", () => {
-    res.locals.hasRole = jest.fn().mockReturnValue(false);
+    req.session.roleNames = ["student"];
     const middleware = ensureAnyRole(["Admin", "Staff"]);
 
     middleware(req, res, next);
@@ -55,53 +59,42 @@ describe("ensureAnyRole middleware", () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  test("returns 403 when hasRole function is missing", () => {
+  test("redirects to login when session is missing", () => {
+    req.session = null;
+    const middleware = ensureAnyRole(["Admin"]);
+
+    middleware(req, res, next);
+
+    expect(res.redirect).toHaveBeenCalledWith("/auth/login");
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test("calls next() when empty roles array is provided", () => {
+    req.session.roleNames = ["teacher"];
+    const middleware = ensureAnyRole([]);
+
+    middleware(req, res, next);
+
+    // Empty array means no role restriction
+    expect(next).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  test("handles case-insensitive role matching", () => {
+    req.session.roleNames = ["teacher"]; // lowercase in session
+    const middleware = ensureAnyRole(["Teacher"]); // Title case in definition
+
+    middleware(req, res, next);
+
+    expect(next).toHaveBeenCalled();
+  });
+
+  test("returns 403 when roleNames is not an array", () => {
+    req.session.roleNames = null;
     const middleware = ensureAnyRole(["Admin"]);
 
     middleware(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(403);
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  test("handles empty roles array", () => {
-    res.locals.hasRole = jest.fn().mockReturnValue(true);
-    const middleware = ensureAnyRole([]);
-
-    middleware(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(403);
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  test("checks all roles until one matches", () => {
-    const hasRoleMock = jest.fn()
-      .mockReturnValueOnce(false) // Admin: no
-      .mockReturnValueOnce(false) // Staff: no
-      .mockReturnValueOnce(true);  // Teacher: yes
-    
-    res.locals.hasRole = hasRoleMock;
-    const middleware = ensureAnyRole(["Admin", "Staff", "Teacher"]);
-
-    middleware(req, res, next);
-
-    expect(hasRoleMock).toHaveBeenCalledWith("Admin");
-    expect(hasRoleMock).toHaveBeenCalledWith("Staff");
-    expect(hasRoleMock).toHaveBeenCalledWith("Teacher");
-    expect(next).toHaveBeenCalled();
-  });
-
-  test("short-circuits when first role matches", () => {
-    const hasRoleMock = jest.fn()
-      .mockReturnValueOnce(true); // Admin: yes (stops checking)
-    
-    res.locals.hasRole = hasRoleMock;
-    const middleware = ensureAnyRole(["Admin", "Staff", "Teacher"]);
-
-    middleware(req, res, next);
-
-    expect(hasRoleMock).toHaveBeenCalledTimes(1);
-    expect(hasRoleMock).toHaveBeenCalledWith("Admin");
-    expect(next).toHaveBeenCalled();
   });
 });

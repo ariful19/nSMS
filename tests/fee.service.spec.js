@@ -119,7 +119,7 @@ describe("Fee Service", () => {
 
       expect(result.student).toBeDefined();
       expect(result.entries).toHaveLength(2);
-      expect(result.currentBalance).toBe(500); // 1000 - 500
+      expect(result.balance).toBe(500); // 1000 - 500
       expect(prisma.student.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id: 1 },
@@ -143,7 +143,7 @@ describe("Fee Service", () => {
       const result = await feeService.getStudentLedger(1);
 
       expect(result.entries).toEqual([]);
-      expect(result.currentBalance).toBe(0);
+      expect(result.balance).toBe(0);
     });
 
     test("returns null when student not found", async () => {
@@ -156,8 +156,8 @@ describe("Fee Service", () => {
   });
 
   describe("createCharges", () => {
-    test("creates charge entries for student", async () => {
-      const mockCharges = [
+    test("accepts valid charge payload", async () => {
+      const mockTransaction = jest.fn().mockResolvedValue([
         {
           id: 1,
           studentId: 1,
@@ -165,25 +165,24 @@ describe("Fee Service", () => {
           entryType: "CHARGE",
           amount: "1000.00",
         },
-      ];
+      ]);
 
-      prisma.feeLedgerEntry.create.mockResolvedValue(mockCharges[0]);
+      prisma.$transaction = mockTransaction;
 
-      const payload = {
-        studentId: 1,
-        charges: [
+      const result = await feeService.createCharges(
+        1, // studentId
+        [
           {
             categoryId: 1,
             amount: 1000,
             description: "Tuition fee",
           },
         ],
-      };
-
-      const result = await feeService.createCharges(payload);
+        1 // recordedById
+      );
 
       expect(result).toBeDefined();
-      expect(prisma.feeLedgerEntry.create).toHaveBeenCalled();
+      expect(mockTransaction).toHaveBeenCalled();
     });
   });
 });

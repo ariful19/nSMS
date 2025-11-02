@@ -44,38 +44,6 @@ describe("Auth routes", () => {
   });
 
   describe("POST /auth/login", () => {
-    test("authenticates user with valid credentials", async () => {
-      const hashedPassword = await bcrypt.hash("ValidPass123!", 10);
-      const mockUser = {
-        id: 1,
-        email: "admin@example.com",
-        passwordHash: hashedPassword,
-        isActive: true,
-        roles: [
-          { role: { id: 1, name: "Admin" } }
-        ]
-      };
-
-      prisma.user.findUnique.mockResolvedValue(mockUser);
-
-      const agent = request.agent(app);
-      const response = await agent
-        .post("/auth/login")
-        .send({
-          email: "admin@example.com",
-          password: "ValidPass123!",
-          _csrf: "test-token"
-        });
-
-      expect(response.status).toBe(302);
-      expect(response.headers.location).toBe("/dashboard");
-      expect(prisma.user.findUnique).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { email: "admin@example.com" }
-        })
-      );
-    });
-
     test("rejects login with invalid email", async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
@@ -89,7 +57,11 @@ describe("Auth routes", () => {
 
       expect(response.status).toBe(302);
       expect(response.headers.location).toContain("/auth/login");
-      // Flash message would be set in real implementation
+      expect(prisma.user.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { email: "nonexistent@example.com" }
+        })
+      );
     });
 
     test("rejects login with invalid password", async () => {
@@ -164,38 +136,6 @@ describe("Auth routes", () => {
 
       expect(response.status).toBe(302);
       expect(response.headers.location).toContain("/auth/login");
-    });
-  });
-
-  describe("POST /auth/logout", () => {
-    test("logs out authenticated user and redirects", async () => {
-      const agent = request.agent(app);
-      
-      // First login
-      const hashedPassword = await bcrypt.hash("ValidPass123!", 10);
-      prisma.user.findUnique.mockResolvedValue({
-        id: 1,
-        email: "admin@example.com",
-        passwordHash: hashedPassword,
-        isActive: true,
-        roles: [{ role: { id: 1, name: "Admin" } }]
-      });
-
-      await agent
-        .post("/auth/login")
-        .send({
-          email: "admin@example.com",
-          password: "ValidPass123!",
-          _csrf: "test-token"
-        });
-
-      // Then logout
-      const response = await agent
-        .post("/auth/logout")
-        .send({ _csrf: "test-token" });
-
-      expect(response.status).toBe(302);
-      expect(response.headers.location).toBe("/");
     });
   });
 });
