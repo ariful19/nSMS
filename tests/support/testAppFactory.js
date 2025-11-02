@@ -22,6 +22,7 @@ function createRouterTestApp(router, { basePath = "/", sessionResolver = default
 
   app.use((req, res, next) => {
     req.flash = jest.fn();
+    req.session = {}; // Add session object for auth tests
     res.locals = res.locals || {};
     res.locals.csrfToken = "test-token";
     res.locals.hasRole = (role) => {
@@ -35,7 +36,7 @@ function createRouterTestApp(router, { basePath = "/", sessionResolver = default
   app.use((req, res, next) => {
     const sessionData = sessionResolver ? sessionResolver(req) : null;
     if (sessionData) {
-      req.session = sessionData;
+      Object.assign(req.session, sessionData);
     }
     next();
   });
