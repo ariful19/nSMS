@@ -9,7 +9,8 @@
       </div>
       <div class="card__actions">
         <button type="button" class="btn btn--ghost" @click="print">Print</button>
-        <a class="btn" href="/fees">Back to fees</a>
+        <a v-if="receipt.student?.id" class="btn" :href="`/fees/ledger/${receipt.student.id}`">Back to student ledger</a>
+        <a class="btn btn--ghost" href="/fees">All fees</a>
       </div>
     </header>
 

@@ -38,7 +38,7 @@
               <div class="toolbar__search">
                 <input
                   v-model="classSearch"
-                  type="search"
+                  type="search" aria-label="Search classes or subjects"
                   class="form__control"
                   placeholder="Search by name, code, grade or homeroom teacher"
                 />
@@ -200,7 +200,7 @@
               <div class="toolbar__search">
                 <input
                   v-model="subjectSearch"
-                  type="search"
+                  type="search" aria-label="Search classes or subjects"
                   class="form__control"
                   placeholder="Search subjects by name or code"
                 />

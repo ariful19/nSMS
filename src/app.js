@@ -64,13 +64,18 @@ app.use(
 
 app.use(flash);
 
-const csrfProtection = csrf({ cookie: false });
-app.use(csrfProtection);
-app.use(attachUser);
 app.use((req, res, next) => {
+  res.locals.csrfToken = null;
+  res.locals.currentUser = null;
+  res.locals.isAuthenticated = false;
+  res.locals.hasRole = () => false;
   res.locals.env = config.env;
   next();
 });
+
+const csrfProtection = csrf({ cookie: false });
+app.use(csrfProtection);
+app.use(attachUser);
 
 app.use(express.static(config.paths.public));
 

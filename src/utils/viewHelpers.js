@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const HTML_SAFE_LT = /</g;
 const HTML_SAFE_GT = />/g;
 const HTML_SAFE_SCRIPT = /<\/(script)/gi;
@@ -26,7 +28,11 @@ function serializeState(data) {
 
 function createScriptTag(entryName) {
   const normalized = entryName.startsWith("/") ? entryName : `/js/${entryName}`;
-  return `<script type=\"module\" src=\"${normalized}\"></script>`;
+  const manifestPath = path.join(__dirname, "..", "public", "js", ".vite", "manifest.json");
+  const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, "utf8")) : {};
+  const entry = Object.values(manifest).find((item) => item.isEntry && item.file === path.basename(normalized));
+  const styles = (entry?.css || []).map((file) => `<link rel="stylesheet" href="/js/${file}" />`).join("");
+  return styles + `<script type=\"module\" src=\"${normalized}\"></script>`;
 }
 
 module.exports = {

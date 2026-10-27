@@ -1,0 +1,80 @@
+{
+  "__plugin-vue_export-helper-DlAUqK2U.js": {
+    "file": "chunks/_plugin-vue_export-helper-DlAUqK2U.js",
+    "name": "_plugin-vue_export-helper"
+  },
+  "_sq-avatar-badge-iwxELXVT.js": {
+    "file": "chunks/sq-avatar-badge-iwxELXVT.js",
+    "name": "sq-avatar-badge"
+  },
+  "src/client/academic/main.js": {
+    "file": "academic.js",
+    "name": "academic",
+    "src": "src/client/academic/main.js",
+    "isEntry": true,
+    "imports": [
+      "_sq-avatar-badge-iwxELXVT.js"
+    ]
+  },
+  "src/client/communications/main.js": {
+    "file": "communications.js",
+    "name": "communications",
+    "src": "src/client/communications/main.js",
+    "isEntry": true,
+    "imports": [
+      "_sq-avatar-badge-iwxELXVT.js",
+      "__plugin-vue_export-helper-DlAUqK2U.js"
+    ],
+    "css": [
+      "assets/communications-6Mgh6agQ.css"
+    ]
+  },
+  "src/client/fees/main.js": {
+    "file": "fees.js",
+    "name": "fees",
+    "src": "src/client/fees/main.js",
+    "isEntry": true,
+    "imports": [
+      "_sq-avatar-badge-iwxELXVT.js",
+      "__plugin-vue_export-helper-DlAUqK2U.js"
+    ],
+    "css": [
+      "assets/fees-CwXmAZX3.css"
+    ]
+  },
+  "src/client/library/main.js": {
+    "file": "library.js",
+    "name": "library",
+    "src": "src/client/library/main.js",
+    "isEntry": true,
+    "imports": [
+      "_sq-avatar-badge-iwxELXVT.js"
+    ]
+  },
+  "src/client/students/main.js": {
+    "file": "students.js",
+    "name": "students",
+    "src": "src/client/students/main.js",
+    "isEntry": true,
+    "imports": [
+      "_sq-avatar-badge-iwxELXVT.js",
+      "__plugin-vue_export-helper-DlAUqK2U.js"
+    ],
+    "css": [
+      "assets/students-Bs2AVFX3.css"
+    ]
+  },
+  "src/client/teachers/main.js": {
+    "file": "teachers.js",
+    "name": "teachers",
+    "src": "src/client/teachers/main.js",
+    "isEntry": true,
+    "imports": [
+      "_sq-avatar-badge-iwxELXVT.js",
+      "__plugin-vue_export-helper-DlAUqK2U.js"
+    ],
+    "css": [
+      "assets/teachers-CnbxHYqF.css"
+    ]
+  }
+}

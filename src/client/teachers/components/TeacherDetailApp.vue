@@ -1,6 +1,7 @@
 <template>
   <section class="card card--detail">
     <header class="card__header">
+      <h1 class="card__title">{{ fullName }}</h1>
       <sq-avatar-badge :name="fullName" :subtitle="staffTypeName"></sq-avatar-badge>
       <div class="card__actions">
         <a :href="`/teachers/${teacher.id}/edit`" class="btn">Edit</a>

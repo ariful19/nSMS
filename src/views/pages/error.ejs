@@ -1,8 +1,9 @@
 <section class="error">
-  <h1>Something went wrong</h1>
+  <h1><%= title === "Forbidden" ? "Access denied" : "Something went wrong" %></h1>
   <p><%= message || "An unexpected error occurred. Please try again later." %></p>
   <% if (typeof errorId !== "undefined") { %>
     <p class="error__code">Reference: <%= errorId %></p>
   <% } %>
+  <% if (!isAuthenticated) { %><a class="btn" href="/auth/login">Return to sign in</a><% } else { %><a class="btn" href="/dashboard">Go to dashboard</a><% } %>
   <a class="btn btn--primary" href="/">Return home</a>
 </section>

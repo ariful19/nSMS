@@ -1,4 +1,5 @@
 <template>
+  <p v-if="!canManage" role="status">Class management is read-only. Open grade entry for available subjects below.</p>
   <div class="academic-app">
     <section class="page-hero page-hero--subtle">
       <div class="page-hero__content">
@@ -59,7 +60,14 @@
         </div>
       </header>
 
-      <form class="form" @submit.prevent="saveClassroom" novalidate>
+      <dl v-if="!canManage" class="summary">
+        <dt>Name</dt><dd>{{ classroom.name }}</dd>
+        <dt>Code</dt><dd>{{ classroom.code || "Unassigned" }}</dd>
+        <dt>Grade level</dt><dd>{{ gradeDisplay }}</dd>
+        <dt>Homeroom teacher</dt><dd>{{ homeroomDisplay }}</dd>
+        <dt>Description</dt><dd>{{ classroom.description || "No description provided." }}</dd>
+      </dl>
+      <form v-if="canManage" class="form" @submit.prevent="saveClassroom" novalidate>
         <div v-if="classErrors.length" class="alert alert--danger">
           <p>Unable to update class:</p>
           <ul>
@@ -117,16 +125,14 @@
         </label>
         <div class="form__actions">
           <button type="submit" class="btn" :disabled="isSavingClass">Save changes</button>
-          <button
-            v-if="classroom.isArchived"
+          <button v-if="canManage && (classroom.isArchived)"
             type="button"
             class="btn btn--ghost"
             @click="restoreClass"
           >
             Restore class
           </button>
-          <button
-            v-else
+          <button v-if="canManage && !classroom.isArchived"
             type="button"
             class="btn btn--danger"
             @click="archiveClass"
@@ -144,7 +150,7 @@
           <p class="card__subtitle">Pair subjects with teachers to create a smooth, predictable timetable.</p>
         </div>
       </header>
-      <form class="form" @submit.prevent="assignSubject" novalidate>
+      <form v-if="canManage" class="form" @submit.prevent="assignSubject" novalidate>
         <div v-if="subjectErrors.length" class="alert alert--danger">
           <p>Unable to assign subject:</p>
           <ul>
@@ -208,7 +214,7 @@
                   >
                     Grade entry
                   </a>
-                  <button
+                  <button v-if="canManage"
                     type="button"
                     class="btn btn--small btn--danger"
                     @click="removeSubject(assignment)"
@@ -227,11 +233,11 @@
       <header class="card__header">
         <div>
           <h2 class="card__title">Enrollments</h2>
-          <p class="card__subtitle">Search for students and welcome them into this class roster.</p>
+          <p class="card__subtitle">View the current class roster. Authorized staff can manage enrollments.</p>
         </div>
       </header>
       <div class="card__body">
-        <label class="form__group">
+        <label v-if="canManage" class="form__group">
           <span>Search students</span>
           <input
             v-model.trim="studentSearch"
@@ -249,12 +255,12 @@
         </div>
         <p v-if="isSearching" class="muted">Searching students…</p>
         <p
-          v-if="studentSearch && !isSearching && searchResults.length === 0"
+          v-if="canManage && studentSearch && !isSearching && searchResults.length === 0"
           class="muted"
         >
           No students match your search or they are already enrolled.
         </p>
-        <ul v-if="searchResults.length" class="list list--compact">
+        <ul v-if="canManage && searchResults.length" class="list list--compact">
           <li v-for="student in searchResults" :key="student.id" class="list__option">
             <div>
               <strong>{{ student.name }}</strong>
@@ -262,7 +268,7 @@
                 {{ student.studentNumber }}
               </span>
             </div>
-            <button type="button" class="btn btn--small" @click="addEnrollment(student)">
+            <button v-if="canManage" type="button" class="btn btn--small" @click="addEnrollment(student)">
               Add to class
             </button>
           </li>
@@ -294,7 +300,7 @@
                 <td data-title="Grade">{{ enrollment.gradeLevel ?? "—" }}</td>
                 <td data-title="Status">{{ enrollment.status ?? "Active" }}</td>
                 <td class="table__actions">
-                  <button
+                  <button v-if="canManage"
                     type="button"
                     class="btn btn--small btn--danger"
                     @click="removeEnrollment(enrollment)"
@@ -315,6 +321,7 @@
 import { computed, reactive, ref } from "vue";
 
 const props = defineProps({
+  canManage: { type: Boolean, default: false },
   detail: { type: Object, default: () => ({}) },
   csrfToken: { type: String, default: "" },
 });

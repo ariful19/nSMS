@@ -440,6 +440,7 @@ exports.show = async (req, res, next) => {
 
     const state = serializeState({
       detail,
+      canManage: res.locals.hasRole("Admin") || res.locals.hasRole("Staff"),
       csrfToken: res.locals.csrfToken || null,
     });
 

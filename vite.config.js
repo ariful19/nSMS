@@ -14,6 +14,7 @@ module.exports = defineConfig({
   ],
   publicDir: false,
   build: {
+    manifest: true,
     outDir: path.resolve(__dirname, "src/public/js"),
     emptyOutDir: false,
     sourcemap: true,

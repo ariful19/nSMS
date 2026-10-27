@@ -174,7 +174,7 @@
                   </td>
                   <td data-title="Score">
                     <input
-                      v-model.number="gradeEntries[enrollment.studentId].score"
+                      v-model.number="gradeEntries[enrollment.studentId].score" :aria-label="'Score for ' + enrollment.name"
                       type="number"
                       step="0.01"
                       class="form__control"
@@ -183,7 +183,7 @@
                   </td>
                   <td data-title="Max">
                     <input
-                      v-model.number="gradeEntries[enrollment.studentId].maxScore"
+                      v-model.number="gradeEntries[enrollment.studentId].maxScore" :aria-label="'Maximum score for ' + enrollment.name"
                       type="number"
                       step="0.01"
                       class="form__control"
@@ -198,7 +198,7 @@
                   </td>
                   <td data-title="Comments">
                     <input
-                      v-model.trim="gradeEntries[enrollment.studentId].comments"
+                      v-model.trim="gradeEntries[enrollment.studentId].comments" :aria-label="'Comments for ' + enrollment.name"
                       type="text"
                       class="form__control"
                       placeholder="Encouragement or feedback"

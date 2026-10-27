@@ -30,6 +30,7 @@
 
       <label class="form__field form__field--full">
         <span class="form__label">Description</span>
+        <small>Content may contain HTML markup. Use Preview to review formatting before saving; avoid pasting scripts or embedded content.</small>
         <textarea v-model="form.description" name="description" rows="6"></textarea>
       </label>
 
@@ -41,14 +42,14 @@
         <label class="form__field">
           <span class="form__label">Status</span>
           <select v-model="form.status" name="status">
-            <option value="">Draft</option>
+            <option value="" disabled>Select status (defaults to Draft)</option>
             <option v-for="status in lookups.statuses" :key="status" :value="status">{{ status }}</option>
           </select>
         </label>
         <label class="form__field">
           <span class="form__label">Visibility</span>
           <select v-model="form.visibility" name="visibility">
-            <option value="">Internal</option>
+            <option value="" disabled>Select visibility (defaults to Internal)</option>
             <option v-for="visibility in lookups.visibilities" :key="visibility" :value="visibility">
               {{ visibility }}
             </option>

@@ -10,7 +10,6 @@
       </div>
       <div class="card__actions">
         <a class="btn" href="/students/create">Add student</a>
-        <a class="btn btn--ghost" href="/students">Clear search</a>
       </div>
     </header>
 
@@ -55,10 +54,10 @@
         <span>Show active enrollment only</span>
       </label>
       <button type="submit" class="btn btn--ghost filters__submit">
-        Apply on server
+        Save search in URL
       </button>
       <button type="button" class="btn btn--link filters__submit" @click="resetFilters">
-        Reset filters
+        Clear all filters
       </button>
     </form>
 
@@ -90,8 +89,8 @@
               {{ student.studentNumber || "—" }}
             </td>
             <td class="table__actions">
-              <a :href="`/students/${student.id}`" class="btn btn--small btn--ghost">View</a>
-              <a :href="`/students/${student.id}/edit`" class="btn btn--small">Edit</a>
+              <a :href="`/students/${student.id}`" class="btn btn--small btn--ghost" :aria-label="'View ' + displayName(student)">View</a>
+              <a :href="`/students/${student.id}/edit`" class="btn btn--small" :aria-label="'Edit ' + displayName(student)">Edit</a>
               <form
                 class="form form--inline"
                 :action="`/students/${student.id}/delete`"
@@ -99,7 +98,7 @@
                 @submit.prevent="confirmDelete($event)"
               >
                 <input type="hidden" name="_csrf" :value="csrfToken" />
-                <button type="submit" class="btn btn--small btn--danger">Delete</button>
+                <button type="submit" class="btn btn--small btn--danger" :aria-label="'Delete ' + displayName(student)">Delete</button>
               </form>
             </td>
           </tr>
@@ -149,6 +148,11 @@
 
 <script setup>
 import { computed, reactive, ref } from "vue";
+
+function displayName(record) {
+  const name = [record?.person?.firstName, record?.person?.lastName].filter(Boolean).join(" ").trim();
+  return name || record?.name || "this person";
+}
 
 const props = defineProps({
   students: { type: Array, default: () => [] },
@@ -355,5 +359,11 @@ function confirmDelete(event) {
   color: #475569;
   margin: 0;
   padding: 1rem 0;
+}
+@media (max-width: 768px) {
+  .filters { grid-template-columns: minmax(0, 1fr); width: 100%; }
+  .filters__field, .filters__checkbox { min-width: 0; }
+  .filters__field input, .filters__field select { width: 100%; min-width: 0; box-sizing: border-box; }
+  .filters__checkbox { flex-wrap: wrap; }
 }
 </style>

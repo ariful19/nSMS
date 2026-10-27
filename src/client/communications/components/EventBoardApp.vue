@@ -382,4 +382,15 @@ const filteredEvents = computed(() => {
   display: inline-flex;
   gap: 0.75rem;
 }
+@media (max-width: 768px) {
+  .event-board, .event-board__header, .event-board__actions { min-width: 0; width: 100%; }
+  .event-board__header { flex-direction: column; }
+  .event-board__filters { grid-template-columns: minmax(0, 1fr); }
+  .event-board__filters .form__field { min-width: 0; display: flex; flex-direction: column; gap: .4rem; }
+  .event-board__filters input, .event-board__filters select { width: 100%; min-width: 0; box-sizing: border-box; }
+  .event-board__filters .form__field--checkbox { flex-direction: row; }
+  .event-board__filters input[type="checkbox"] { width: auto; }
+  .event-timeline__header { flex-wrap: wrap; }
+  .event-timeline__item { min-width: 0; }
+}
 </style>

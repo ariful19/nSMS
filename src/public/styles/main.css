@@ -1433,3 +1433,23 @@ code {
     scroll-behavior: auto !important;
   }
 }
+
+.nav-toggle { display:none; }
+:focus-visible { outline:3px solid #5145cd; outline-offset:3px; }
+.layout__nav { flex-wrap:wrap; }
+@media(max-width:768px) { .nav-toggle { display:inline-block; padding:.65rem 1rem; } .layout__header { flex-wrap:wrap; } .layout__nav { display:none; width:100%; } .layout__nav.is-open { display:flex; } .card__header { flex-wrap:wrap; gap:1rem; } input,select,textarea { max-width:100%; box-sizing:border-box; } }
+
+.filters { display:flex; flex-wrap:wrap; align-items:end; gap:1rem; }
+.filters__field { display:flex; flex-direction:column; gap:.4rem; }
+.table-responsive { max-width:100%; overflow-x:auto; }
+.card__actions { display:flex; flex-wrap:wrap; gap:.75rem; }
+@media(max-width:768px) {
+ .filters { flex-direction:column; align-items:stretch; }
+ .card__header { flex-direction:column; align-items:stretch; }
+ .card__actions .btn { white-space:normal; }
+ .layout__content { min-width:0; }
+ .card { min-width:0; }
+}
+
+.layout__content, .page, .page__section, .card { min-width:0; max-width:100%; box-sizing:border-box; }
+.table-responsive { width:100%; min-width:0; overflow-x:auto; }
